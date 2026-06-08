@@ -16,7 +16,7 @@ interface Person {
   children?: Person[];
 }
 
-// ── Dados da equipe — edite aqui ─────────────────────────────────────────────
+// ── Dados da equipe ─────────────────────────────────────────────
 const ORG: Person = {
   id: 'gm',
   name: 'Ney Barreiros',
@@ -363,7 +363,7 @@ export default function Sobre() {
                     <div className="text-center">
                       <p className="text-slate-300 text-sm font-semibold">Vídeo Institucional</p>
                       <p className="text-slate-600 text-xs mt-1">
-                        Configure <code className="text-slate-500 bg-slate-800 px-1 rounded">VIDEO_URL</code> e <code className="text-slate-500 bg-slate-800 px-1 rounded">VIDEO_TYPE</code> no topo do arquivo
+                       <code className="text-slate-500 bg-slate-800 px-1 rounded">VIDEO_URL</code>  <code className="text-slate-500 bg-slate-800 px-1 rounded"></code>
                       </p>
                     </div>
                   </div>
