@@ -1,0 +1,33 @@
+# ── Dependências ──────────────────────────────────────
+node_modules/
+
+# ── Variáveis de ambiente (NUNCA versionar) ───────────
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# ── Build / compilação ────────────────────────────────
+dist/
+dist-ssr/
+build/
+
+# ── Uploads de arquivos (binários de usuário) ─────────
+backend/uploads/
+
+# ── Logs ──────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+
+# ── Editores / SO ─────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.sw?
+
+# ── TypeScript cache ──────────────────────────────────
+*.tsbuildinfo
