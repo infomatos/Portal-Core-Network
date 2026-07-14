@@ -52,7 +52,7 @@ export default function Register() {
 
         <input name="name" placeholder="Nome completo" value={form.name} onChange={handleChange}
           className="border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" />
-        <input name="matricula" placeholder="Matrícula" value={form.matricula} onChange={handleChange}
+        <input name="matricula" placeholder="Matrícula (FXXXXXXX)" value={form.matricula} onChange={handleChange}
           className="border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" />
         <input name="email" type="email" placeholder="E-mail corporativo" value={form.email} onChange={handleChange}
           className="border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" />

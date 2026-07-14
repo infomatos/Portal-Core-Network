@@ -4,22 +4,34 @@ import { useAuth } from '../store/AuthContext';
 
 interface UploadEntry { id: number; label: string; uploadedAt: string; }
 
+interface PortalStats {
+  logins: number;
+  visitas: number;
+  total: number;
+  topPage: { path: string; total: number } | null;
+  users: { total: number; active: number; pending: number; rejected: number };
+  newsletters: { total: number; sent: number; draft: number };
+  subscribers: { total: number; active: number; inactive: number };
+  news: { total: number; published: number; draft: number; views: number };
+  forum: { total: number; published: number; draft: number };
+}
+
 const PATH_LABELS: Record<string, string> = {
-  '/':                            'Home',
-  '/orcamento':                   'Orçamento',
-  '/orcamento/visao-geral':       'Orçamento · Visão Geral',
-  '/orcamento/realizacao-nfv':    'Orçamento · Realização NFV',
-  '/orcamento/master-pivot':      'Orçamento · Master Pivot',
-  '/aquisicoes':                  'Aquisições',
-  '/aquisicoes/visao-geral':      'Aquisições · Visão Geral',
-  '/aquisicoes/status-rfx':       'Aquisições · Status RFX',
-  '/aquisicoes/orcamento-rfx':    'Aquisições · Orçamento RFX',
-  '/contratos':                   'Contratos',
-  '/contratos/visao-geral':       'Contratos · Visão Geral',
-  '/contratos/buscar-contratos':  'Contratos · Buscar Contratos',
-  '/contratos/compromissos':      'Contratos · Compromissos',
-  '/contratos/oss2cloud':         'Contratos · OSS2Cloud',
-  '/dashboard':                   'Dashboard',
+  '/': 'Home',
+  '/orcamento': 'Orçamento',
+  '/orcamento/visao-geral': 'Orçamento · Visão Geral',
+  '/orcamento/realizacao-nfv': 'Orçamento · Realização NFV',
+  '/orcamento/master-pivot': 'Orçamento · Master Pivot',
+  '/aquisicoes': 'Aquisições',
+  '/aquisicoes/visao-geral': 'Aquisições · Visão Geral',
+  '/aquisicoes/status-rfx': 'Aquisições · Status RFX',
+  '/aquisicoes/orcamento-rfx': 'Aquisições · Orçamento RFX',
+  '/contratos': 'Contratos',
+  '/contratos/visao-geral': 'Contratos · Visão Geral',
+  '/contratos/buscar-contratos': 'Contratos · Buscar Contratos',
+  '/contratos/compromissos': 'Contratos · Compromissos',
+  '/contratos/oss2cloud': 'Contratos · OSS2Cloud',
+  '/dashboard': 'Dashboard',
 };
 
 function pathLabel(path: string) {
@@ -61,11 +73,10 @@ function ModuleCard({ to, title, description, count, lastUpdate, icon }: {
         <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-slate-900 group-hover:text-white transition-colors duration-200 shrink-0">
           {icon}
         </div>
-        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
-          count != null && count > 0
+        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${count != null && count > 0
             ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
             : 'text-slate-400 bg-slate-50 border-slate-200'
-        }`}>
+          }`}>
           {count != null ? `${count} publicação${count !== 1 ? 'ões' : ''}` : '—'}
         </span>
       </div>
@@ -90,27 +101,49 @@ function ModuleCard({ to, title, description, count, lastUpdate, icon }: {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [users, setUsers]               = useState<number | null>(null);
-  const [acessos, setAcessos] = useState<{
-    logins: number; visitas: number; total: number;
-    topPage: { path: string; total: number } | null;
-  } | null>(null);
-  const [pivot, setPivot]               = useState<UploadEntry[]>([]);
+  const [stats, setStats] = useState<PortalStats | null>(null);
+  const [pivot, setPivot] = useState<UploadEntry[]>([]);
   const [compromissos, setCompromissos] = useState<UploadEntry[]>([]);
 
   const API = import.meta.env.VITE_API_URL;
   const authHeader = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 
   useEffect(() => {
-    fetch(`${API}/auth/users`, { headers: authHeader })
-      .then(r => r.json()).then((d: any[]) => setUsers(d.length)).catch(() => setUsers(0));
-
     fetch(`${API}/auth/stats`, { headers: authHeader })
-      .then(r => r.json()).then((d: any) => setAcessos({
-        logins: d.logins ?? 0, visitas: d.visitas ?? 0, total: d.total ?? 0,
+      .then(r => r.json()).then((d: any) => setStats({
+        logins: d.logins ?? 0,
+        visitas: d.visitas ?? 0,
+        total: d.total ?? 0,
         topPage: d.topPage ?? null,
+        users: {
+          total: d.users?.total ?? 0,
+          active: d.users?.active ?? 0,
+          pending: d.users?.pending ?? 0,
+          rejected: d.users?.rejected ?? 0,
+        },
+        newsletters: {
+          total: d.newsletters?.total ?? 0,
+          sent: d.newsletters?.sent ?? 0,
+          draft: d.newsletters?.draft ?? 0,
+        },
+        subscribers: {
+          total: d.subscribers?.total ?? 0,
+          active: d.subscribers?.active ?? 0,
+          inactive: d.subscribers?.inactive ?? 0,
+        },
+        news: {
+          total: d.news?.total ?? 0,
+          published: d.news?.published ?? 0,
+          draft: d.news?.draft ?? 0,
+          views: d.news?.views ?? 0,
+        },
+        forum: {
+          total: d.forum?.total ?? 0,
+          published: d.forum?.published ?? 0,
+          draft: d.forum?.draft ?? 0,
+        },
       }))
-      .catch(() => setAcessos({ logins: 0, visitas: 0, total: 0, topPage: null }));
+      .catch(() => setStats(null));
 
     fetch(`${API}/pivot`)
       .then(r => r.json()).then(setPivot).catch(() => setPivot([]));
@@ -120,8 +153,13 @@ export default function Dashboard() {
   }, []);
 
   const today = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const hora = new Date().getHours();
+  const saudacao =
+    hora < 12 ? 'Bom dia' :
+      hora < 18 ? 'Boa tarde' :
+        'Boa noite';
   const pivotLast = pivot[0]?.uploadedAt ?? null;
-  const compLast  = compromissos[0]?.uploadedAt ?? null;
+  const compLast = compromissos[0]?.uploadedAt ?? null;
 
   return (
     <div className="p-8 flex flex-col gap-8 max-w-4xl">
@@ -130,7 +168,7 @@ export default function Dashboard() {
       <div>
         <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 capitalize">{today}</p>
         <h1 className="text-2xl font-bold text-slate-800 mt-1">
-          Bom dia, {user?.name?.split(' ')[0]}
+          {saudacao}, {user?.name?.split(' ')[0]}
         </h1>
         <p className="text-sm text-slate-500 mt-1">Aqui está um resumo do estado atual do portal.</p>
       </div>
@@ -143,9 +181,9 @@ export default function Dashboard() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
             </svg>
           }
-          value={users != null ? String(users) : '—'}
+          value={stats != null ? String(stats.users.total) : '—'}
           label="Usuários cadastrados"
-          sub="na plataforma"
+          sub={stats != null ? `${stats.users.active} ativos · ${stats.users.pending} pendentes` : undefined}
         />
         <StatCard
           icon={
@@ -154,9 +192,49 @@ export default function Dashboard() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>
           }
-          value={acessos != null ? String(acessos.total) : '—'}
+          value={stats != null ? String(stats.total) : '—'}
           label="Acessos ao portal"
-          sub={acessos != null ? `${acessos.logins} logins · ${acessos.visitas} visitas` : undefined}
+          sub={stats != null ? `${stats.logins} logins · ${stats.visitas} visitas` : undefined}
+        />
+        <StatCard
+          icon={
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+            </svg>
+          }
+          value={stats != null ? String(stats.newsletters.sent) : '—'}
+          label="Newsletters enviadas"
+          sub={stats != null ? `${stats.newsletters.draft} rascunhos · ${stats.newsletters.total} total` : undefined}
+        />
+        <StatCard
+          icon={
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a5.971 5.971 0 0 0-.94 3.197m0 0a9.094 9.094 0 0 1-3.742-.479 3 3 0 0 1 4.682-2.72M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+            </svg>
+          }
+          value={stats != null ? String(stats.subscribers.active) : '—'}
+          label="Inscritos ativos"
+          sub={stats != null ? `${stats.subscribers.total} inscritos no total` : undefined}
+        />
+        <StatCard
+          icon={
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
+            </svg>
+          }
+          value={stats != null ? String(stats.news.published) : '—'}
+          label="Notícias publicadas"
+          sub={stats != null ? `${stats.news.draft} rascunhos · ${stats.news.views} leituras` : undefined}
+        />
+        <StatCard
+          icon={
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.674.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.17 48.17 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+            </svg>
+          }
+          value={stats != null ? String(stats.forum.published) : '—'}
+          label="Fóruns publicados"
+          sub={stats != null ? `${stats.forum.draft} rascunhos · ${stats.forum.total} total` : undefined}
         />
         <StatCard
           icon={
@@ -181,7 +259,7 @@ export default function Dashboard() {
       </div>
 
       {/* Top page */}
-      {acessos?.topPage && (
+      {stats?.topPage && (
         <div className="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-5">
           <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -190,11 +268,11 @@ export default function Dashboard() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">Página mais acessada</p>
-            <p className="text-base font-bold text-slate-800 truncate">{pathLabel(acessos.topPage.path)}</p>
-            <p className="text-xs font-mono text-slate-400 mt-0.5">{acessos.topPage.path}</p>
+            <p className="text-base font-bold text-slate-800 truncate">{pathLabel(stats.topPage.path)}</p>
+            <p className="text-xs font-mono text-slate-400 mt-0.5">{stats.topPage.path}</p>
           </div>
           <div className="shrink-0 text-right">
-            <p className="text-2xl font-bold text-slate-800 tabular-nums">{acessos.topPage.total}</p>
+            <p className="text-2xl font-bold text-slate-800 tabular-nums">{stats.topPage.total}</p>
             <p className="text-xs text-slate-400">acessos</p>
           </div>
         </div>

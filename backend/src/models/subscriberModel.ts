@@ -22,6 +22,20 @@ export async function listarAtivos(): Promise<Subscriber[]> {
   return rows as Subscriber[];
 }
 
+export async function contarSubscribers(): Promise<{ total: number; active: number; inactive: number }> {
+  const [rows]: any = await pool.query(
+    'SELECT status, COUNT(*) AS total FROM subscribers GROUP BY status'
+  );
+  const result = { total: 0, active: 0, inactive: 0 };
+  for (const row of rows) {
+    const count = Number(row.total) || 0;
+    result.total += count;
+    if (row.status === 'active') result.active = count;
+    if (row.status === 'inactive') result.inactive = count;
+  }
+  return result;
+}
+
 export async function adicionarSubscriber(name: string, email: string): Promise<void> {
   await pool.query(
     'INSERT INTO subscribers (name, email) VALUES (?, ?)',

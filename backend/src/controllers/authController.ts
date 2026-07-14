@@ -9,9 +9,14 @@ import {
     registrarAcesso, registrarVisita, totalAcessos, paginaMaisAcessada,
     atualizarNome, emailsAdmins,
     listarPendentes, aprovarUser, recusarUser,
+    contarUsers,
 } from "../models/userModel";
 import type { AuthRequest } from "../middlewares/authMiddleware";
 import { enfileirar } from "../models/mailQueueModel";
+import { contarNewsletters } from "../models/newsletterModel";
+import { contarSubscribers } from "../models/subscriberModel";
+import { contarNoticiasPorStatus } from "../models/newsModel";
+import { contarForumPorStatus } from "../models/forumModel";
 
 export async function login(req: Request, res: Response) {
     const { matricula, password } = req.body;
@@ -63,11 +68,34 @@ export async function logVisit(req: Request, res: Response) {
 
 export async function getStats(_req: Request, res: Response) {
     try {
-        const [{ logins, visitas }, topPage] = await Promise.all([
+        const [
+            { logins, visitas },
+            topPage,
+            users,
+            newsletters,
+            subscribers,
+            news,
+            forum,
+        ] = await Promise.all([
             totalAcessos(),
             paginaMaisAcessada(),
+            contarUsers(),
+            contarNewsletters(),
+            contarSubscribers(),
+            contarNoticiasPorStatus(),
+            contarForumPorStatus(),
         ]);
-        res.json({ logins, visitas, total: logins + visitas, topPage });
+        res.json({
+            logins,
+            visitas,
+            total: logins + visitas,
+            topPage,
+            users,
+            newsletters,
+            subscribers,
+            news,
+            forum,
+        });
     } catch {
         res.status(500).json({ message: 'Erro ao buscar estatísticas' });
     }

@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
-import { authMiddleware, requireAdmin } from '../middlewares/authMiddleware';
+import { authMiddleware, requireAdminOrModerador } from '../middlewares/authMiddleware';
 import {
   getSubscribers, addSubscriber, patchSubscriberStatus, removeSubscriber,
 } from '../controllers/subscriberController';
@@ -31,7 +31,7 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 router.post(
   '/upload',
-  authMiddleware, requireAdmin,
+  authMiddleware, requireAdminOrModerador,
   upload.single('image'),
   (req: Request, res: Response) => {
     if (!req.file) return res.status(400).json({ message: 'Nenhuma imagem recebida' });
@@ -42,18 +42,19 @@ router.post(
 );
 
 // --- Subscribers ---
-router.get('/subscribers', authMiddleware, requireAdmin, getSubscribers);
-router.post('/subscribers', authMiddleware, requireAdmin, addSubscriber);
-router.patch('/subscribers/:id/status', authMiddleware, requireAdmin, patchSubscriberStatus);
-router.delete('/subscribers/:id', authMiddleware, requireAdmin, removeSubscriber);
+router.post('/subscribe', addSubscriber);
+router.get('/subscribers', authMiddleware, requireAdminOrModerador, getSubscribers);
+router.post('/subscribers', authMiddleware, requireAdminOrModerador, addSubscriber);
+router.patch('/subscribers/:id/status', authMiddleware, requireAdminOrModerador, patchSubscriberStatus);
+router.delete('/subscribers/:id', authMiddleware, requireAdminOrModerador, removeSubscriber);
 
 // --- Newsletters ---
-router.get('/', authMiddleware, requireAdmin, getNewsletters);
-router.get('/:id', authMiddleware, requireAdmin, getNewsletter);
-router.post('/', authMiddleware, requireAdmin, createNewsletter);
-router.put('/:id', authMiddleware, requireAdmin, updateNewsletter);
-router.post('/:id/send', authMiddleware, requireAdmin, sendNewsletter);
-router.post('/:id/duplicar', authMiddleware, requireAdmin, duplicarNewsletterHandler);
-router.delete('/:id', authMiddleware, requireAdmin, deleteNewsletter);
+router.get('/', authMiddleware, requireAdminOrModerador, getNewsletters);
+router.get('/:id', authMiddleware, requireAdminOrModerador, getNewsletter);
+router.post('/', authMiddleware, requireAdminOrModerador, createNewsletter);
+router.put('/:id', authMiddleware, requireAdminOrModerador, updateNewsletter);
+router.post('/:id/send', authMiddleware, requireAdminOrModerador, sendNewsletter);
+router.post('/:id/duplicar', authMiddleware, requireAdminOrModerador, duplicarNewsletterHandler);
+router.delete('/:id', authMiddleware, requireAdminOrModerador, deleteNewsletter);
 
 export default router;

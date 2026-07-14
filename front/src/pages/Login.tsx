@@ -40,7 +40,7 @@ export default function Login() {
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Entrar</h2>
         <input
           type="text"
-          placeholder="Matrícula"
+          placeholder="Matrícula (FXXXXXXX)"
           value={matricula}
           onChange={e => setMatricula(e.target.value)}
           className="border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"

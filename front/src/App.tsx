@@ -32,7 +32,16 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
-import Sobre from "./pages/Sobre";
+// import Sobre from "./pages/Sobre";
+import News from "./pages/News";
+import Newsletter from "./pages/Newsletter";
+import Artigo from "./pages/news/Artigo";
+import Forum from "./pages/forum/Forum";
+import ForumPost from "./pages/forum/ForumPost";
+import Noticias from "./pages/dashboard/Noticias";
+import EditorNoticia from "./pages/dashboard/EditorNoticia";
+import ForumAdmin from "./pages/dashboard/Forum";
+import EditorForum from "./pages/dashboard/EditorForum";
 import EmConstrucao from "./pages/EmConstrucao";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -82,6 +91,9 @@ export default function App() {
               <Route path="usuarios" element={<Usuarios />} />
               <Route path="aprovacoes" element={<Aprovacoes />} />
               <Route path="inscritos" element={<Inscritos />} />
+              <Route path="forum" element={<ForumAdmin />} />
+              <Route path="forum/novo" element={<EditorForum />} />
+              <Route path="forum/:id" element={<EditorForum />} />
             </Route>
             {/* Sub-rotas acessíveis a admin e moderador */}
             <Route path="editar-master-pivot" element={<EditarMasterPivot />} />
@@ -89,6 +101,9 @@ export default function App() {
             <Route path="newsletter" element={<Newsletters />} />
             <Route path="newsletter/nova" element={<EditorNewsletter />} />
             <Route path="newsletter/:id" element={<EditorNewsletter />} />
+            <Route path="noticias" element={<Noticias />} />
+            <Route path="noticias/nova" element={<EditorNoticia />} />
+            <Route path="noticias/:id" element={<EditorNoticia />} />
           </Route>
         </Route>
 
@@ -126,7 +141,14 @@ export default function App() {
           <Route path="/contratos/compromissos" element={<Compromissos />} />
         </Route>
 
-        <Route path="/sobre" element={<Sobre />} />
+        <Route path="/sobre" element={<EmConstrucao />} />
+
+        {/* Rotas News — públicas */}
+        <Route path="/news" element={<News />} />
+        <Route path="/newsletter" element={<Newsletter />} />
+        <Route path="/news/:slug" element={<Artigo />} />
+        <Route path="/forum" element={<Forum />} />
+        <Route path="/forum/:slug" element={<ForumPost />} />
 
         {placeholderRoutes().map(path => (
           <Route key={path} path={path} element={<EmConstrucao />} />

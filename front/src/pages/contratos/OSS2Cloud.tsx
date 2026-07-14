@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 
-const PBI_URL = 'https://app.powerbi.com/reportEmbed?reportId=e5637a78-a70f-4583-9c6d-c26fd7ec9b44&autoAuth=true&ctid=57b8c96e-ac2f-4d78-a149-f1fc6817d3c4';
+const PBI_URL = 'https://app.powerbi.com/reportEmbed?reportId=7be9d345-3ec8-442f-9380-d710cec8d532&autoAuth=true&ctid=57b8c96e-ac2f-4d78-a149-f1fc6817d3c4';
 
 const META = {
   periodo: '—',

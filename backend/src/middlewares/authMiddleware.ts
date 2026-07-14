@@ -16,6 +16,13 @@ export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction
     next();
 }
 
+export function requireAdminOrModerador(req: AuthRequest, res: Response, next: NextFunction) {
+    if (req.user?.role !== 'admin' && req.user?.role !== 'moderador') {
+        return res.status(403).json({ message: 'Acesso restrito a administradores e moderadores' });
+    }
+    next();
+}
+
 export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {

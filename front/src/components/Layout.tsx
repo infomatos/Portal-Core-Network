@@ -425,7 +425,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       </div>
 
       <footer className="flex items-center justify-center px-8 py-4 bg-slate-900 text-slate-400 text-sm shrink-0">
-        © {new Date().getFullYear()} Portal CNE — TIM Brasil. Todos os direitos reservados.
+        © {new Date().getFullYear()} Portal Core Network — TIM Brasil. Todos os direitos reservados.
       </footer>
 
     </div>

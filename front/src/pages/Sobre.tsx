@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 // ── Configuração ─────────────────────────────────────────────────────────────
-// Para arquivo .mp4 no servidor: '/portalCNE/video/institucional.mp4'
+// Para arquivo .mp4 no servidor: '/portalcorenetwork/video/institucional.mp4'
 // Para YouTube embed:            'https://www.youtube.com/embed/VIDEO_ID'
 const VIDEO_URL = '';
 const VIDEO_TYPE: 'mp4' | 'youtube' | '' = '';
@@ -363,7 +363,7 @@ export default function Sobre() {
                     <div className="text-center">
                       <p className="text-slate-300 text-sm font-semibold">Vídeo Institucional</p>
                       <p className="text-slate-600 text-xs mt-1">
-                       <code className="text-slate-500 bg-slate-800 px-1 rounded">VIDEO_URL</code>  <code className="text-slate-500 bg-slate-800 px-1 rounded"></code>
+                       <code className="text-slate-500 bg-slate-800 px-1 rounded">VIDEO_URL</code>  <code className="text-slate-500 bg-slate-800 px-1 rounded">VIDEO_TYPE</code>
                       </p>
                     </div>
                   </div>

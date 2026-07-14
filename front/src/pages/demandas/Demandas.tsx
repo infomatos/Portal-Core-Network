@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import ChatDemandas from './ChatDemandas';
 
 const cards = [
   {
@@ -111,6 +112,8 @@ export default function Demandas() {
           })}
         </div>
       </div>
+
+      <ChatDemandas />
 
     </div>
   );

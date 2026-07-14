@@ -77,9 +77,8 @@ export async function sendNewsletter(req: AuthRequest, res: Response) {
       return res.status(400).json({ message: 'Nenhum subscriber ativo encontrado' });
     }
 
-    for (const sub of subscribers) {
-      await enfileirar(sub.email, newsletter.title, newsletter.body);
-    }
+    const emails = subscribers.map(s => s.email).join(', ');
+    await enfileirar(emails, newsletter.title, newsletter.body);
 
     await marcarEnviada(id);
 

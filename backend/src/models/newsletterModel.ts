@@ -17,6 +17,20 @@ export async function listarNewsletters(): Promise<Omit<Newsletter, 'body' | 'de
   return rows as Omit<Newsletter, 'body' | 'design'>[];
 }
 
+export async function contarNewsletters(): Promise<{ total: number; sent: number; draft: number }> {
+  const [rows]: any = await pool.query(
+    'SELECT status, COUNT(*) AS total FROM newsletters GROUP BY status'
+  );
+  const result = { total: 0, sent: 0, draft: 0 };
+  for (const row of rows) {
+    const count = Number(row.total) || 0;
+    result.total += count;
+    if (row.status === 'sent') result.sent = count;
+    if (row.status === 'draft') result.draft = count;
+  }
+  return result;
+}
+
 export async function buscarNewsletter(id: number): Promise<Newsletter | null> {
   const [rows] = await pool.query(
     'SELECT id, title, body, design, status, created_at, sent_at FROM newsletters WHERE id = ?',

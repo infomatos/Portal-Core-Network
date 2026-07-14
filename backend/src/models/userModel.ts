@@ -92,6 +92,21 @@ export async function listarUsers() {
     return rows;
 }
 
+export async function contarUsers(): Promise<{ total: number; active: number; pending: number; rejected: number }> {
+    const [rows]: any = await pool.query(
+        'SELECT status, COUNT(*) AS total FROM users GROUP BY status'
+    );
+    const result = { total: 0, active: 0, pending: 0, rejected: 0 };
+    for (const row of rows) {
+        const count = Number(row.total) || 0;
+        result.total += count;
+        if (row.status === 'active') result.active = count;
+        if (row.status === 'pending') result.pending = count;
+        if (row.status === 'rejected') result.rejected = count;
+    }
+    return result;
+}
+
 export async function listarPendentes() {
     const [rows]: any = await pool.query(
         "SELECT id, name, matricula, email, created_at FROM users WHERE status = 'pending' ORDER BY created_at ASC"

@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import type { AuthRequest } from '../middlewares/authMiddleware';
 import {
   listarSubscribers,
@@ -17,7 +17,7 @@ export async function getSubscribers(req: AuthRequest, res: Response) {
   }
 }
 
-export async function addSubscriber(req: AuthRequest, res: Response) {
+export async function addSubscriber(req: Request, res: Response) {
   const { name, email } = req.body;
   if (!name || !email) {
     return res.status(400).json({ message: 'Nome e email são obrigatórios' });
