@@ -3,6 +3,25 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { EmailEditor } from 'react-email-editor';
 import { useAuth } from '../../store/AuthContext';
 
+function removerContornosDoHtml(html: string) {
+  return html
+    .replace(/\sborder=(["'])[^"']*\1/gi, ' border="0"')
+    .replace(/style=(["'])(.*?)\1/gis, (_match, quote, style) => {
+      const cleaned = style
+        .split(';')
+        .map((declaration: string) => declaration.trim())
+        .filter((declaration: string) => {
+          if (!declaration) return false;
+          const isBorder = /^border(?:-(?:top|right|bottom|left|color|style|width))?\s*:/i.test(declaration);
+          const isDisabledBorder = /:\s*(?:0(?:px)?|none)\b/i.test(declaration);
+          return !isBorder || isDisabledBorder;
+        })
+        .join('; ');
+
+      return cleaned ? `style=${quote}${cleaned}${quote}` : '';
+    });
+}
+
 export default function EditorNewsletter() {
   const { id } = useParams<{ id?: string }>();
   const { token } = useAuth();
@@ -64,7 +83,7 @@ export default function EditorNewsletter() {
   function exportarESalvar(aoSalvar: (html: string, design: string) => Promise<void>) {
     if (!editorRef.current) return;
     editorRef.current.exportHtml(async (dados: any) => {
-      await aoSalvar(dados.html, JSON.stringify(dados.design));
+      await aoSalvar(removerContornosDoHtml(dados.html), JSON.stringify(dados.design));
     });
   }
 

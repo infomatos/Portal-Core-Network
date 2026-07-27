@@ -14,13 +14,13 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
     await transporter.sendMail({
-        from: `"Portal CNE" <${process.env.EMAIL_FROM}>`,
+        from: `"Portal Core Network Engineering" <${process.env.EMAIL_FROM}>`,
         to,
-        subject: 'Redefinição de senha — Portal CNE',
+        subject: 'Redefinição de senha — Portal Core Network Engineering',
         html: `
             <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
                 <h2 style="color: #1e293b;">Redefinição de senha</h2>
-                <p>Recebemos uma solicitação para redefinir a senha da sua conta no Portal CNE.</p>
+                <p>Recebemos uma solicitação para redefinir a senha da sua conta no Portal Core Network Engineering.</p>
                 <p>Clique no botão abaixo para criar uma nova senha. O link expira em <strong>1 hora</strong>.</p>
                 <a href="${resetUrl}"
                    style="display:inline-block;margin:16px 0;padding:12px 24px;background:#1e293b;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState} from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../store/AuthContext';
 
@@ -36,26 +36,32 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center py-20">
-      <div className="w-80 flex flex-col gap-3 bg-white p-8 rounded-lg shadow">
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        handleLogin();
+      }} className="w-80 flex flex-col gap-3 bg-white p-8 rounded-lg shadow">
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Entrar</h2>
         <input
+          name="matricula"
           type="text"
+          autoComplete="username"
           placeholder="Matrícula (FXXXXXXX)"
           value={matricula}
           onChange={e => setMatricula(e.target.value)}
           className="border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
         />
         <input
+          name="password"
           type="password"
+          autoComplete="current-password"
           placeholder="Senha"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleLogin()}
           className="border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
-          onClick={handleLogin}
+          type="submit"
           className="mt-1 bg-slate-900 text-white py-2 rounded hover:bg-slate-700 transition-colors cursor-pointer"
         >
           Entrar
@@ -69,7 +75,7 @@ export default function Login() {
             Criar conta
           </Link>
         </div>
-      </div>
-    </div>
+    </form>
+    </div >
   );
 }

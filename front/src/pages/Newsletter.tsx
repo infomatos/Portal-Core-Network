@@ -93,7 +93,7 @@ export default function Newsletter() {
                   required
                   disabled={enviando}
                   className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-300 disabled:bg-slate-50"
-                  placeholder="seu.email@timbrasil.com.br"
+                  placeholder="seu.email@empresa.com.br"
                 />
               </label>
 
