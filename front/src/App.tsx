@@ -11,6 +11,7 @@ import ProjetosVG from "./pages/projetos/VisaoGeral";
 import ProjetosDetalhamento from "./pages/projetos/Detalhamento";
 import Demandas from "./pages/demandas/Demandas";
 import DemandasVG from "./pages/demandas/VisaoGeral";
+import Inventario from "./pages/inventario/Inventario";
 import Contratos from "./pages/contratos/Contratos";
 import ContratosVG from "./pages/contratos/VisaoGeral";
 import OSS2Cloud from "./pages/contratos/OSS2Cloud";
@@ -131,6 +132,10 @@ export default function App() {
         {/* Rotas demandas */}
         <Route path="/demandas" element={<Demandas />} />
         <Route path="/demandas/visao-geral" element={<DemandasVG />} />
+
+        {/* Rotas inventario */}
+        <Route path="/inventario" element={<Inventario />} />
+        <Route path="/inventario/:tipo" element={<Inventario />} />
 
         {/* Rotas contratos protegidas — qualquer usuário logado */}
         <Route element={<ProtectedRoute />}>
