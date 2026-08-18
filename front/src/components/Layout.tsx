@@ -186,7 +186,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="flex flex-col min-h-screen">
 
       {/* Top nav */}
-      <nav className="relative z-10 flex items-center px-4 md:px-8 h-16 bg-slate-900 text-white shrink-0 gap-2">
+      <nav className="relative z-[9998] flex items-center px-4 md:px-8 h-16 bg-slate-900 text-white shrink-0 gap-2">
         {/* Esquerda: logo */}
         <NavLink to="/" className="shrink-0 flex items-center gap-3">
           <img src={`${import.meta.env.BASE_URL}favicon.png`} alt="TIM" className="h-8 w-auto" />

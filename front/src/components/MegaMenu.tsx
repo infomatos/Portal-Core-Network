@@ -40,10 +40,15 @@ export default function MegaMenu({ sections, pathname }: Props) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeDelayMs = 500;
 
   const activeSection = sections.find(s => pathname.startsWith(s.to));
 
   useEffect(() => { setOpen(false); }, [pathname]);
+
+  useEffect(() => () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
 
   function handleMouseEnter() {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -51,7 +56,7 @@ export default function MegaMenu({ sections, pathname }: Props) {
   }
 
   function handleMouseLeave() {
-    closeTimer.current = setTimeout(() => setOpen(false), 120);
+    closeTimer.current = setTimeout(() => setOpen(false), closeDelayMs);
   }
 
   const triggerClass = `flex items-center gap-1.5 px-3 py-1.5 text-sm rounded transition-colors whitespace-nowrap cursor-pointer ${
@@ -63,7 +68,7 @@ export default function MegaMenu({ sections, pathname }: Props) {
   return (
     <div
       ref={wrapperRef}
-      className="relative shrink-0"
+      className="relative z-[9999] shrink-0"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -81,7 +86,7 @@ export default function MegaMenu({ sections, pathname }: Props) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-2 z-50 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden">
+        <div className="absolute top-full left-0 mt-2 z-[9999] bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden">
           <div className="flex divide-x divide-slate-700">
             {sections.map(section => {
               const sectionActive = pathname.startsWith(section.to);

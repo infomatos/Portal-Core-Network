@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Executivo · Base de Servidores &amp; Reuso 2026</title>
+<style>
+:root{
+  --tim-blue:#003A70; --tim-cyan:#00A3E0; --tim-red:#E4002B;
+  --bg:#eef2f7; --panel:#ffffff; --panel-2:#f7f9fc; --ink:#12263f; --ink-2:#5a6b82;
+  --line:#dde5ee; --shadow:0 2px 4px rgba(16,42,67,.06),0 8px 24px rgba(16,42,67,.08);
+  --ok:#0d8a4f; --warn:#c77700; --bad:#E4002B; --neutral:#8a97a8;
+  --sidebar-w:250px; --sidebar-w-min:62px;
+}
+html[data-theme="dark"]{
+  --bg:#0c1420; --panel:#131e2d; --panel-2:#18253700; --ink:#e8eef6; --ink-2:#9fb0c4;
+  --line:#243449; --shadow:0 2px 4px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  --tim-blue:#0d5da8; --ok:#2fbe7a; --warn:#e9a13b; --bad:#ff5c78; --neutral:#7f8ea3;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--tim-cyan)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+
+/* ---------- LAYOUT ---------- */
+#app{display:flex;min-height:100vh}
+#sidebar{width:var(--sidebar-w-min);flex:0 0 auto;background:linear-gradient(180deg,var(--tim-blue),#00284e);
+  color:#fff;transition:width .25s cubic-bezier(.4,0,.2,1);position:sticky;top:0;height:100vh;overflow:hidden;z-index:40}
+#sidebar.open{width:var(--sidebar-w)}
+.sb-head{display:flex;align-items:center;gap:10px;padding:16px 14px;border-bottom:1px solid rgba(255,255,255,.14)}
+.sb-logo{min-width:34px;height:34px;border-radius:9px;background:var(--tim-red);display:grid;place-items:center;
+  font-weight:700;font-size:13px;letter-spacing:.5px}
+.sb-title{white-space:nowrap;opacity:0;transition:opacity .2s;font-weight:600;font-size:13px}
+#sidebar.open .sb-title{opacity:1}
+.sb-nav{padding:10px 8px;display:flex;flex-direction:column;gap:2px}
+.sb-nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px;color:#cfe2f5;
+  text-decoration:none;white-space:nowrap;font-size:13.5px;transition:background .15s,color .15s}
+.sb-nav a:hover{background:rgba(255,255,255,.1);color:#fff}
+.sb-nav a.active{background:rgba(0,163,224,.28);color:#fff;font-weight:600}
+.sb-ic{min-width:22px;text-align:center;font-size:15px}
+.sb-lb{opacity:0;transition:opacity .2s}
+#sidebar.open .sb-lb{opacity:1}
+.sb-foot{position:absolute;bottom:0;left:0;right:0;padding:12px 14px;font-size:11px;color:#9fc0e0;
+  border-top:1px solid rgba(255,255,255,.12);white-space:nowrap;opacity:0;transition:opacity .2s}
+#sidebar.open .sb-foot{opacity:1}
+#main{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* ---------- TOPBAR ---------- */
+header.top{position:sticky;top:0;z-index:30;background:var(--panel);border-bottom:1px solid var(--line);
+  padding:12px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 1px 2px rgba(16,42,67,.05)}
+.burger{background:transparent;border:1px solid var(--line);color:var(--ink);width:38px;height:38px;border-radius:9px;
+  cursor:pointer;font-size:16px;display:grid;place-items:center}
+.burger:hover{background:var(--panel-2);border-color:var(--tim-cyan)}
+.h-title{font-size:17px;font-weight:700;letter-spacing:-.2px;margin:0}
+.h-sub{font-size:12px;color:var(--ink-2);margin:1px 0 0}
+.spacer{flex:1}
+.btn{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:8px 13px;border-radius:9px;
+  cursor:pointer;font-size:12.5px;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+.btn:hover{border-color:var(--tim-cyan);color:var(--tim-cyan)}
+.btn.primary{background:var(--tim-blue);border-color:var(--tim-blue);color:#fff}
+.btn.primary:hover{background:#00509b;color:#fff}
+.search{position:relative}
+.search input{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:9px 12px 9px 32px;
+  color:var(--ink);font-size:13px;width:250px;font-family:inherit}
+.search input:focus{outline:none;border-color:var(--tim-cyan);box-shadow:0 0 0 3px rgba(0,163,224,.14)}
+.search span{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-2);font-size:13px}
+
+/* ---------- FILTERS ---------- */
+.filters{background:var(--panel);border-bottom:1px solid var(--line);padding:11px 22px;display:flex;gap:9px;
+  flex-wrap:wrap;align-items:center;position:sticky;top:63px;z-index:25}
+.fl-lb{font-size:11px;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.7px;margin-right:4px}
+.dd{position:relative}
+.dd-btn{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);padding:8px 12px;border-radius:9px;
+  cursor:pointer;font-size:12.5px;font-family:inherit;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.dd-btn:hover{border-color:var(--tim-cyan)}
+.dd-btn.has{border-color:var(--tim-cyan);background:rgba(0,163,224,.09);color:var(--tim-cyan);font-weight:600}
+.dd-pan{display:none;position:absolute;top:calc(100% + 6px);left:0;background:var(--panel);border:1px solid var(--line);
+  border-radius:11px;box-shadow:var(--shadow);padding:8px;min-width:238px;max-height:310px;overflow:auto;z-index:60}
+.dd-pan.show{display:block}
+.dd-pan label{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:7px;cursor:pointer;font-size:12.5px}
+.dd-pan label:hover{background:var(--panel-2)}
+.dd-pan input{accent-color:var(--tim-cyan);width:15px;height:15px}
+.dd-cnt{margin-left:auto;color:var(--ink-2);font-size:11px}
+.chip{background:rgba(0,163,224,.12);color:var(--tim-cyan);border:1px solid rgba(0,163,224,.3);border-radius:20px;
+  padding:4px 10px;font-size:11.5px;display:inline-flex;gap:6px;align-items:center}
+.chip b{cursor:pointer}
+
+/* ---------- CONTENT ---------- */
+main{padding:22px;max-width:1720px;width:100%;margin:0 auto}
+section{margin-bottom:30px;scroll-margin-top:130px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin:0 0 14px}
+.sec-h h2{font-size:16px;font-weight:700;margin:0;letter-spacing:-.2px}
+.sec-h h2::before{content:"";display:inline-block;width:4px;height:15px;background:var(--tim-red);
+  border-radius:2px;margin-right:9px;vertical-align:-1px}
+.sec-h p{margin:0;font-size:12.5px;color:var(--ink-2)}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+  padding:18px;transition:transform .18s,box-shadow .18s}
+.card:hover{box-shadow:0 4px 8px rgba(16,42,67,.08),0 14px 34px rgba(16,42,67,.11)}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(233px,1fr));gap:14px}
+.kpi{position:relative;overflow:hidden;animation:rise .45s ease both}
+.kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tim-cyan)}
+.kpi.k-bad::after{background:var(--bad)} .kpi.k-ok::after{background:var(--ok)} .kpi.k-warn::after{background:var(--warn)}
+.kpi .lb{font-size:11.5px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.6px;font-weight:600;
+  display:flex;align-items:center;gap:6px}
+.kpi .vl{font-size:29px;font-weight:700;letter-spacing:-1px;margin:7px 0 2px;font-variant-numeric:tabular-nums}
+.kpi .un{font-size:13px;font-weight:600;color:var(--ink-2);margin-left:3px}
+.kpi .dt{font-size:12px;color:var(--ink-2)}
+.trend{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:12.5px;padding:2px 8px;border-radius:20px}
+.t-up{color:var(--ok);background:rgba(13,138,79,.12)}
+.t-dn{color:var(--bad);background:rgba(228,0,43,.12)}
+.t-fl{color:var(--neutral);background:rgba(138,151,168,.14)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* Insights */
+.ins-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.ins{border-left:4px solid var(--tim-cyan);animation:rise .5s ease both}
+.ins.r-high{border-left-color:var(--bad)} .ins.r-med{border-left-color:var(--warn)} .ins.r-opp{border-left-color:var(--ok)}
+.ins h4{margin:0 0 4px;font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;padding:3px 8px;border-radius:20px;
+  background:rgba(0,163,224,.14);color:var(--tim-cyan);white-space:nowrap}
+.tag.risco{background:rgba(228,0,43,.13);color:var(--bad)}
+.tag.atencao{background:rgba(199,119,0,.15);color:var(--warn)}
+.tag.oportunidade{background:rgba(13,138,79,.13);color:var(--ok)}
+.ins .big{font-size:24px;font-weight:700;letter-spacing:-.8px;margin:6px 0;color:var(--tim-blue)}
+html[data-theme="dark"] .ins .big{color:var(--tim-cyan)}
+.ins dl{margin:8px 0 0;font-size:12.7px}
+.ins dt{font-weight:700;color:var(--ink);margin-top:7px;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px}
+.ins dd{margin:1px 0 0;color:var(--ink-2)}
+
+/* Charts */
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(430px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.ch-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:2px}
+.ch-h h3{margin:0;font-size:14.5px;font-weight:700;letter-spacing:-.2px}
+.ch-sub{margin:3px 0 12px;font-size:12.3px;color:var(--ink-2);line-height:1.45;min-height:34px}
+.ch-sub b{color:var(--ink);font-weight:700}
+.png{background:transparent;border:1px solid var(--line);color:var(--ink-2);border-radius:7px;cursor:pointer;
+  font-size:10.5px;padding:4px 8px;white-space:nowrap;font-family:inherit}
+.png:hover{color:var(--tim-cyan);border-color:var(--tim-cyan)}
+.legend{display:flex;flex-wrap:wrap;gap:11px;margin-top:11px;font-size:11.5px;color:var(--ink-2)}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:fixed;pointer-events:none;background:rgba(0,32,62,.96);color:#fff;border-radius:9px;padding:9px 12px;
+  font-size:12px;z-index:200;opacity:0;transition:opacity .12s;box-shadow:0 8px 26px rgba(0,0,0,.3);max-width:290px;line-height:1.5}
+.tip.on{opacity:1}
+.tip b{color:#63d0ff}
+
+/* Table */
+.tbl-wrap{overflow:auto;max-height:600px;border:1px solid var(--line);border-radius:11px}
+table{width:100%;border-collapse:collapse;font-size:12.3px;white-space:nowrap}
+thead th{position:sticky;top:0;background:var(--tim-blue);color:#fff;text-align:left;padding:11px 12px;
+  font-size:11px;text-transform:uppercase;letter-spacing:.6px;cursor:pointer;user-select:none;z-index:5}
+thead th:hover{background:#00509b}
+thead th .ar{opacity:.45;margin-left:5px;font-size:9px}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--ink-2)}
+tbody tr:hover td{background:var(--panel-2);color:var(--ink)}
+tbody td:first-child{color:var(--ink);font-weight:600}
+.pill{padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700;display:inline-block}
+.p-reuso{background:rgba(13,138,79,.14);color:var(--ok)}
+.p-desc{background:rgba(228,0,43,.13);color:var(--bad)}
+.p-opor{background:rgba(0,163,224,.15);color:var(--tim-cyan)}
+.p-mant{background:rgba(138,151,168,.18);color:var(--neutral)}
+.pg{display:flex;align-items:center;gap:9px;margin-top:12px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
+.pg button{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:6px 11px;
+  cursor:pointer;font-size:12px;font-family:inherit}
+.pg button:hover:not(:disabled){border-color:var(--tim-cyan);color:var(--tim-cyan)}
+.pg button:disabled{opacity:.4;cursor:not-allowed}
+.pg select{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:6px 9px;font-family:inherit}
+
+/* Recommendations */
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(325px,1fr));gap:14px}
+.rec h3{margin:0 0 12px;font-size:14.5px;display:flex;align-items:center;gap:9px}
+.rec .ic{width:29px;height:29px;border-radius:9px;display:grid;place-items:center;font-size:14px}
+.rec.opp .ic{background:rgba(13,138,79,.15);color:var(--ok)}
+.rec.risk .ic{background:rgba(228,0,43,.13);color:var(--bad)}
+.rec.act .ic{background:rgba(0,163,224,.15);color:var(--tim-cyan)}
+.rec ul{margin:0;padding-left:0;list-style:none}
+.rec li{padding:9px 0;border-bottom:1px dashed var(--line);font-size:12.8px;color:var(--ink-2)}
+.rec li:last-child{border-bottom:none}
+.rec li b{color:var(--ink);display:block;margin-bottom:2px;font-size:13px}
+.prazo{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:5px;
+  background:var(--panel-2);border:1px solid var(--line);color:var(--ink-2);margin-left:6px}
+.prazo.p1{color:var(--bad);border-color:rgba(228,0,43,.4)}
+.prazo.p2{color:var(--warn);border-color:rgba(199,119,0,.4)}
+
+.note{font-size:11.5px;color:var(--ink-2);background:var(--panel-2);border:1px dashed var(--line);border-radius:10px;
+  padding:11px 14px;margin-top:14px}
+.note b{color:var(--ink)}
+footer{padding:20px 22px 34px;color:var(--ink-2);font-size:11.5px;border-top:1px solid var(--line);margin-top:10px}
+.hidden{display:none!important}
+@media(max-width:900px){
+  #sidebar{position:fixed;left:0;top:0;height:100vh}
+  main{padding:14px}.filters{padding:10px 14px;top:59px}header.top{padding:10px 14px}
+  .search input{width:150px}.g2,.g3{grid-template-columns:1fr}
+}
+@media print{#sidebar,.filters,header.top .btn,.png{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+<aside id="sidebar">
+  <div class="sb-head"><div class="sb-logo">TIM</div><div class="sb-title">Servidores &amp; Reuso<br><span style="font-weight:400;opacity:.75">Dashboard Executivo</span></div></div>
+  <nav class="sb-nav">
+    <a href="#s-kpi" class="active"><span class="sb-ic">◧</span><span class="sb-lb">Visão Geral</span></a>
+    <a href="#s-ins"><span class="sb-ic">◆</span><span class="sb-lb">Destaques</span></a>
+    <a href="#s-ciclo"><span class="sb-ic">◷</span><span class="sb-lb">Ciclo de Vida &amp; EOS</span></a>
+    <a href="#s-reuso"><span class="sb-ic">♻</span><span class="sb-lb">Reuso &amp; Capacidade</span></a>
+    <a href="#s-conc"><span class="sb-ic">▦</span><span class="sb-lb">Concentração</span></a>
+    <a href="#s-mig"><span class="sb-ic">⇄</span><span class="sb-lb">Descarte &amp; Migração</span></a>
+    <a href="#s-tab"><span class="sb-ic">☰</span><span class="sb-lb">Tabela Analítica</span></a>
+    <a href="#s-rec"><span class="sb-ic">✔</span><span class="sb-lb">Recomendações</span></a>
+  </nav>
+  <div class="sb-foot" id="sb-foot">Base: SERVIDORES REUSO<br>Referencia: carregando...</div>
+</aside>
+
+<div id="main">
+<header class="top">
+  <button class="burger" id="burger" title="Expandir/recolher menu">☰</button>
+  <div>
+    <h1 class="h-title">Parque de Servidores &amp; Estratégia de Reuso</h1>
+    <p class="h-sub" id="hsub">Painel executivo - dados de <b id="fname">BASE_SERVIDORES_REUSO_2026.xlsx</b> - referencia carregando...</p>
+  </div>
+  <div class="spacer"></div>
+  <div class="search"><span>⌕</span><input id="q" type="search" placeholder="Pesquisa global (host, serial, site, função…)" autocomplete="off"></div>
+  <span class="chip" id="load-status">Carregando base...</span>
+  <button class="btn" id="csv">⤓ CSV</button>
+  <button class="btn" id="theme" title="Alternar tema">◐ Tema</button>
+</header>
+
+<div class="filters" id="filters">
+  <span class="fl-lb">Filtros</span>
+  <div class="dd" data-f="clas"><button class="dd-btn">Classificação <span>▾</span></button><div class="dd-pan"></div></div>
+  <div class="dd" data-f="st"><button class="dd-btn">Status <span>▾</span></button><div class="dd-pan"></div></div>
+  <div class="dd" data-f="forn"><button class="dd-btn">Fornecedor <span>▾</span></button><div class="dd-pan"></div></div>
+  <div class="dd" data-f="site"><button class="dd-btn">Site Origem <span>▾</span></button><div class="dd-pan"></div></div>
+  <div class="dd" data-f="hyp"><button class="dd-btn">Hypervisor <span>▾</span></button><div class="dd-pan"></div></div>
+  <div class="dd" data-f="q"><button class="dd-btn">Quarter Liberação <span>▾</span></button><div class="dd-pan"></div></div>
+  <div class="dd" data-f="tipo"><button class="dd-btn">Tipo <span>▾</span></button><div class="dd-pan"></div></div>
+  <button class="btn" id="clr">✕ Limpar</button>
+  <div class="spacer"></div>
+  <span id="fcount" style="font-size:12px;color:var(--ink-2)"></span>
+</div>
+
+<main>
+  <section id="s-kpi">
+    <div class="sec-h"><h2>Visão Geral</h2><p>Indicadores-chave do parque mapeado</p></div>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section id="s-ins">
+    <div class="sec-h"><h2>Destaques do Período</h2><p>Conclusões executivas derivadas exclusivamente dos dados da base</p></div>
+    <div class="ins-grid" id="insights"></div>
+  </section>
+
+  <section id="s-ciclo">
+    <div class="sec-h"><h2>Ciclo de Vida &amp; End of Support</h2><p>Cronograma de liberação e exposição a hardware fora de suporte</p></div>
+    <div class="grid g2">
+      <div class="card" id="c-quarter"></div>
+      <div class="card" id="c-eos"></div>
+      <div class="card" id="c-expo"></div>
+      <div class="card" id="c-status"></div>
+    </div>
+  </section>
+
+  <section id="s-reuso">
+    <div class="sec-h"><h2>Reuso &amp; Capacidade</h2><p>Potencial de reaproveitamento e capacidade computacional liberada</p></div>
+    <div class="grid g2">
+      <div class="card" id="c-clas"></div>
+      <div class="card" id="c-cap"></div>
+    </div>
+    <div class="grid g3" style="margin-top:14px">
+      <div class="card" id="c-hyp"></div>
+      <div class="card" id="c-forn"></div>
+      <div class="card" id="c-dest"></div>
+    </div>
+  </section>
+
+  <section id="s-conc">
+    <div class="sec-h"><h2>Concentração Operacional</h2><p>Onde está o volume e quando ele se materializa</p></div>
+    <div class="grid g2">
+      <div class="card" id="c-site"></div>
+      <div class="card" id="c-func"></div>
+    </div>
+    <div class="card" id="c-heat" style="margin-top:14px"></div>
+  </section>
+
+  <section id="s-mig">
+    <div class="sec-h"><h2>Descarte &amp; Planos de Migração</h2><p>Vínculo entre desativação de hardware e os programas de migração</p></div>
+    <div class="grid g2">
+      <div class="card" id="c-plano"></div>
+      <div class="card" id="c-sup"></div>
+    </div>
+  </section>
+
+  <section id="s-tab">
+    <div class="sec-h"><h2>Tabela Analítica</h2><p>Detalhamento por servidor · ordenável, pesquisável e exportável</p></div>
+    <div class="card">
+      <div class="tbl-wrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+      <div class="pg">
+        <button id="pf">« Primeira</button><button id="pp">‹ Anterior</button>
+        <span id="pinfo"></span>
+        <button id="pn">Próxima ›</button><button id="pl">Última »</button>
+        <span style="margin-left:auto">Linhas:
+          <select id="psize"><option>25</option><option selected>50</option><option>100</option><option>250</option></select>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section id="s-rec">
+    <div class="sec-h"><h2>Recomendações Executivas</h2><p>Oportunidades, riscos e ações priorizadas</p></div>
+    <div class="rec-grid" id="recs"></div>
+    <div class="note" id="qualnote"></div>
+  </section>
+
+  <footer>
+    Dashboard gerado dinamicamente a partir das abas <b>BASE</b>, <b>Descarte</b> e <b>REUSO</b> do arquivo
+    BASE_SERVIDORES_REUSO_2026.xlsx. Todos os números são calculados sobre os dados carregados — nenhum valor é estimado ou inferido.
+    Campos ausentes na origem são exibidos como “N/D” e explicitamente contabilizados na nota de qualidade de dados.
+    Ultima atualizacao do arquivo: <b id="footer-updated">carregando...</b>. Data de referencia para calculos de EOS e atrasos: <b>05/08/2026</b>.
+  </footer>
+</main>
+</div></div>
+<div class="tip" id="tip"></div>
+<script>
+"use strict";
+/* ============================================================
+   DASHBOARD EXECUTIVO — PARQUE DE SERVIDORES & REUSO
+   Vanilla JS · sem dependências externas · 100% offline
+   ============================================================ */
+const WORKBOOK_URL = "__REUSO_WORKBOOK_URL__";
+const WORKBOOK_FILE = "BASE_SERVIDORES_REUSO_2026.xlsx";
+const REQUIRED_SHEETS = ["BASE", "Descarte", "REUSO"];
+const REF = "2026-08-05";
+const REF_LB = "05/08/2026";
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const nf = new Intl.NumberFormat("pt-BR");
+const n0 = v => nf.format(Math.round(v));
+const n1 = v => v.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const pct = (a, b) => b > 0 ? (100 * a / b) : 0;                       // proteção contra divisão por zero
+const pf = (a, b) => b > 0 ? n1(100 * a / b) + "%" : "n/d";
+const dbr = s => (!s || s === "N/D") ? "N/D" : s.slice(8, 10) + "/" + s.slice(5, 7) + "/" + s.slice(0, 4);
+const days = (a, b) => Math.round((new Date(a) - new Date(b)) / 864e5);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const norm = s => String(s == null ? "" : s).trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").toUpperCase();
+const fmtDateTime = d => d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+function setLoadStatus(txt, mode) {
+  const el = $("#load-status");
+  if (!el) return;
+  el.textContent = txt;
+  el.style.borderColor = mode === "error" ? "rgba(228,0,43,.35)" : "rgba(0,163,224,.3)";
+  el.style.color = mode === "error" ? "var(--bad)" : "var(--tim-cyan)";
+}
+function setWorkbookReference(label) {
+  const ref = label || "nao informada";
+  $("#hsub").innerHTML = `Painel executivo - dados de <b id="fname">${esc(FNAME)}</b> - referencia ${esc(ref)}`;
+  $("#sb-foot").innerHTML = `Base: SERVIDORES REUSO<br>Referencia: ${esc(ref)}`;
+  const foot = $("#footer-updated");
+  if (foot) foot.textContent = ref;
+}
+
+const C = {
+  blue: "#003A70", cyan: "#00A3E0", red: "#E4002B", green: "#0d8a4f",
+  amber: "#c77700", grey: "#6b7f96", violet: "#7b4bb7", teal: "#00838f", light: "#b0bcca"
+};
+const CLAS_C = {
+  "REUSO": C.green, "OPORTUNIDADE REUSO": C.cyan, "DESCARTE": C.red,
+  "MANTER": C.grey, "NÃO CLASSIFICADO": C.light
+};
+const PAL = [C.blue, C.cyan, C.red, C.green, C.amber, C.violet, C.teal, C.grey, C.light, "#8d6e63"];
+const axisC = () => getComputedStyle(document.documentElement).getPropertyValue("--ink-2").trim() || "#5a6b82";
+const lineC = () => getComputedStyle(document.documentElement).getPropertyValue("--line").trim() || "#dde5ee";
+
+/* ---------- modelo de dados ---------- */
+let RAW = [], QORDER = [], FNAME = WORKBOOK_FILE;
+function derive(o) {                      // campos calculados usados por KPIs, gráficos e insights
+  o.foraSup = o.eos !== "N/D" && o.eos < REF;                                   // EOS já vencido
+  o.posEos = (o.libHW !== "N/D" && o.eos !== "N/D" && o.libHW > o.eos) ? days(o.libHW, o.eos) : 0;
+  o.atraso = o.libHW !== "N/D" && o.libHW < REF && o.st === "NÃO LIBERADO";      // backlog
+  o.cand = o.clas === "REUSO" || o.clas === "OPORTUNIDADE REUSO";
+  o.ano = o.eos !== "N/D" ? o.eos.slice(0, 4) : "N/D";
+  o._s = (o.host + " " + o.sn + " " + o.site + " " + o.func + " " + o.mod + " " + o.dest + " " + o.plano).toLowerCase();
+  return o;
+}
+function build(d) {
+  const ix = {}; d.cols.forEach((c, i) => ix[c] = i);
+  const dec = (r, c) => d.dic[c] ? d.dic[c][r[ix[c]]] : r[ix[c]];
+  RAW = d.rows.map(r => {
+    const o = {
+      host: r[ix.host], sn: r[ix.sn], cores: +r[ix.cores] || 0, ram: +r[ix.ram] || 0
+    };
+    ["forn", "mod", "site", "siteDest", "hyp", "func", "tipo", "clas", "st", "dest", "q", "sup", "plano", "disp", "libHW", "libFunc", "eos"]
+      .forEach(c => o[c] = dec(r, c));
+    return derive(o);
+  });
+  QORDER = d.qOrder || [...new Set(RAW.map(r => r.q))].sort();
+  FNAME = d.arquivo || FNAME;
+}
+
+/* ---------- estado ---------- */
+const FKEYS = ["clas", "st", "forn", "site", "hyp", "q", "tipo"];
+const S = { f: {}, q: "", sort: { c: "host", d: 1 }, page: 1, size: 50 };
+FKEYS.forEach(k => S.f[k] = new Set());
+let VIEW = [];
+
+function applyFilters() {
+  const q = S.q.trim().toLowerCase();
+  VIEW = RAW.filter(r => {
+    for (const k of FKEYS) { const s = S.f[k]; if (s.size && !s.has(r[k])) return false; }
+    return !q || r._s.includes(q);
+  });
+}
+
+/* ---------- agregação ---------- */
+const cnt = (rows, key) => { const m = new Map(); rows.forEach(r => m.set(r[key], (m.get(r[key]) || 0) + 1)); return m; };
+const sum = (rows, key) => rows.reduce((a, r) => a + r[key], 0);
+const sortMap = m => [...m.entries()].sort((a, b) => b[1] - a[1]);
+function crosstab(rows, kx, ky) {
+  const m = new Map();
+  rows.forEach(r => { if (!m.has(r[kx])) m.set(r[kx], new Map()); const i = m.get(r[kx]); i.set(r[ky], (i.get(r[ky]) || 0) + 1); });
+  return m;
+}
+const CLAS_ORDER = ["REUSO", "OPORTUNIDADE REUSO", "MANTER", "DESCARTE", "NÃO CLASSIFICADO"];
+const qIdx = q => { const i = QORDER.indexOf(q); return i < 0 ? 999 : i; };
+const curQ = () => { const d = new Date(REF); return d.getUTCFullYear() + "/Q" + (Math.floor(d.getUTCMonth() / 3) + 1); };
+function prevQ(q) { const i = QORDER.indexOf(q); return i > 0 ? QORDER[i - 1] : null; }
+
+/* ============================================================
+   PRIMITIVAS SVG
+   ============================================================ */
+const NS = "http://www.w3.org/2000/svg";
+function E(t, a, kids) {
+  const e = document.createElementNS(NS, t);
+  for (const k in (a || {})) if (a[k] !== undefined && a[k] !== null) e.setAttribute(k, a[k]);
+  (kids || []).forEach(k => e.appendChild(k));
+  return e;
+}
+const TXT = (x, y, s, a) => { const e = E("text", Object.assign({ x, y, fill: axisC(), "font-size": 11, "font-family": "Segoe UI, sans-serif" }, a || {})); e.textContent = s; return e; };
+function svg(w, h) { return E("svg", { viewBox: `0 0 ${w} ${h}`, preserveAspectRatio: "xMidYMid meet", width: "100%" }); }
+
+const tip = $("#tip");
+function bindTip(node, html) {
+  node.style.cursor = "default";
+  node.addEventListener("mousemove", e => {
+    tip.innerHTML = html; tip.classList.add("on");
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.min(e.clientX + 14, innerWidth - w - 12) + "px";
+    tip.style.top = Math.max(8, e.clientY - h - 12) + "px";
+  });
+  node.addEventListener("mouseleave", () => tip.classList.remove("on"));
+}
+
+/* card wrapper: título + subtítulo interpretativo + botão PNG */
+function card(sel, title, subtitle, svgNode, legend) {
+  const c = $(sel); c.innerHTML = "";
+  const h = document.createElement("div"); h.className = "ch-h";
+  h.innerHTML = `<h3>${esc(title)}</h3>`;
+  const b = document.createElement("button"); b.className = "png"; b.textContent = "⤓ PNG";
+  b.onclick = () => exportPNG(svgNode, title);
+  h.appendChild(b); c.appendChild(h);
+  const s = document.createElement("p"); s.className = "ch-sub"; s.innerHTML = subtitle; c.appendChild(s);
+  if (svgNode) c.appendChild(svgNode);
+  if (legend && legend.length) {
+    const l = document.createElement("div"); l.className = "legend";
+    l.innerHTML = legend.map(([n, col]) => `<span><i style="background:${col}"></i>${esc(n)}</span>`).join("");
+    c.appendChild(l);
+  }
+}
+
+/* --- barras verticais empilhadas (+ linha acumulada opcional) --- */
+function chartStackedBars(cats, series, opt) {
+  opt = opt || {};
+  const W = 760, H = opt.h || 330, ml = 52, mr = opt.line ? 52 : 14, mt = 14, mb = 62;
+  const iw = W - ml - mr, ih = H - mt - mb;
+  const tot = cats.map(c => series.reduce((a, s) => a + (s.vals[c] || 0), 0));
+  const max = Math.max(1, ...tot);
+  const s = svg(W, H);
+  const step = iw / Math.max(1, cats.length), bw = Math.min(46, step * .66);
+  // grid + eixo Y
+  const ticks = 4;
+  for (let i = 0; i <= ticks; i++) {
+    const v = max * i / ticks, y = mt + ih - ih * i / ticks;
+    s.appendChild(E("line", { x1: ml, x2: ml + iw, y1: y, y2: y, stroke: lineC(), "stroke-width": 1 }));
+    s.appendChild(TXT(ml - 8, y + 4, n0(v), { "text-anchor": "end", "font-size": 10 }));
+  }
+  cats.forEach((c, i) => {
+    const x = ml + step * i + (step - bw) / 2; let acc = 0;
+    series.forEach(se => {
+      const v = se.vals[c] || 0; if (!v) return;
+      const hh = ih * v / max, y = mt + ih - hh - acc;
+      const r = E("rect", { x, y, width: bw, height: Math.max(1, hh), fill: se.color, rx: 2 });
+      r.style.transition = "opacity .15s"; r.addEventListener("mouseenter", () => r.setAttribute("opacity", ".78"));
+      r.addEventListener("mouseleave", () => r.setAttribute("opacity", "1"));
+      bindTip(r, `<b>${esc(c)}</b><br>${esc(se.name)}: ${n0(v)} servidores<br>Total no período: ${n0(tot[i])}`);
+      s.appendChild(r); acc += hh;
+    });
+    if (tot[i]) s.appendChild(TXT(x + bw / 2, mt + ih - acc - 5, n0(tot[i]), { "text-anchor": "middle", "font-size": 9.5, "font-weight": 600 }));
+    s.appendChild(TXT(ml + step * i + step / 2, mt + ih + 16, c, {
+      "text-anchor": "end", "font-size": 10,
+      transform: `rotate(-38 ${ml + step * i + step / 2} ${mt + ih + 16})`
+    }));
+  });
+  if (opt.line) {  // linha acumulada (eixo direito)
+    let acc = 0; const pts = [], accs = [];
+    cats.forEach((c, i) => { acc += tot[i]; accs.push(acc); });
+    const amax = Math.max(1, acc);
+    cats.forEach((c, i) => pts.push([ml + step * i + step / 2, mt + ih - ih * accs[i] / amax]));
+    s.appendChild(E("path", { d: "M" + pts.map(p => p.join(",")).join("L"), fill: "none", stroke: C.blue, "stroke-width": 2.2, "stroke-dasharray": "5 3" }));
+    pts.forEach((p, i) => {
+      const ci = E("circle", { cx: p[0], cy: p[1], r: 3.6, fill: C.blue });
+      bindTip(ci, `<b>${esc(cats[i])}</b><br>Acumulado: ${n0(accs[i])} servidores<br>${pf(accs[i], amax)} do total`);
+      s.appendChild(ci);
+    });
+    [0, .5, 1].forEach(f => s.appendChild(TXT(ml + iw + 8, mt + ih - ih * f + 4, n0(amax * f), { "font-size": 10, fill: C.blue })));
+  }
+  s.appendChild(E("line", { x1: ml, x2: ml + iw, y1: mt + ih, y2: mt + ih, stroke: axisC(), "stroke-width": 1 }));
+  return s;
+}
+
+/* --- barras horizontais empilhadas --- */
+function chartHBars(items, series, opt) {
+  opt = opt || {};
+  const rowH = opt.rowH || 26, W = 760, ml = opt.ml || 116, mr = 60, mt = 8, mb = 26;
+  const H = mt + mb + items.length * rowH, iw = W - ml - mr;
+  const tot = items.map(i => series.reduce((a, s) => a + (s.vals[i] || 0), 0));
+  const max = Math.max(1, ...tot);
+  const s = svg(W, H);
+  items.forEach((it, i) => {
+    const y = mt + i * rowH; let acc = 0;
+    s.appendChild(TXT(ml - 9, y + rowH / 2 + 4, it.length > 20 ? it.slice(0, 19) + "…" : it, { "text-anchor": "end", "font-size": 11 }));
+    series.forEach(se => {
+      const v = se.vals[it] || 0; if (!v) return;
+      const w = iw * v / max;
+      const r = E("rect", { x: ml + acc, y: y + 4, width: Math.max(1, w), height: rowH - 11, fill: se.color, rx: 2 });
+      r.addEventListener("mouseenter", () => r.setAttribute("opacity", ".78"));
+      r.addEventListener("mouseleave", () => r.setAttribute("opacity", "1"));
+      bindTip(r, `<b>${esc(it)}</b><br>${esc(se.name)}: ${n0(v)} (${pf(v, tot[i])} do site)<br>Total: ${n0(tot[i])}`);
+      s.appendChild(r); acc += w;
+    });
+    s.appendChild(TXT(ml + acc + 7, y + rowH / 2 + 4, n0(tot[i]), { "font-size": 10.5, "font-weight": 600 }));
+  });
+  s.appendChild(E("line", { x1: ml, x2: ml, y1: mt, y2: mt + items.length * rowH, stroke: lineC() }));
+  return s;
+}
+
+/* --- donut --- */
+function chartDonut(entries, opt) {
+  opt = opt || {};
+  const W = 420, H = 300, cx = 150, cy = 148, R = 108, r0 = 66;
+  const s = svg(W, H);
+  const total = entries.reduce((a, e) => a + e[1], 0) || 1;
+  let ang = -Math.PI / 2;
+  entries.forEach((e, i) => {
+    const frac = e[1] / total, a2 = ang + frac * Math.PI * 2;
+    const big = frac > .5 ? 1 : 0;
+    const p = (rr, a) => [cx + rr * Math.cos(a), cy + rr * Math.sin(a)];
+    const [x1, y1] = p(R, ang), [x2, y2] = p(R, a2), [x3, y3] = p(r0, a2), [x4, y4] = p(r0, ang);
+    const col = (opt.colors && opt.colors[e[0]]) || PAL[i % PAL.length];
+    const path = E("path", {
+      d: `M${x1},${y1}A${R},${R} 0 ${big} 1 ${x2},${y2}L${x3},${y3}A${r0},${r0} 0 ${big} 0 ${x4},${y4}Z`,
+      fill: col, stroke: "none"
+    });
+    path.addEventListener("mouseenter", () => path.setAttribute("opacity", ".8"));
+    path.addEventListener("mouseleave", () => path.setAttribute("opacity", "1"));
+    bindTip(path, `<b>${esc(e[0])}</b><br>${n0(e[1])} servidores<br>${pf(e[1], total)} do total`);
+    s.appendChild(path);
+    if (frac > .05) {
+      const [lx, ly] = p((R + r0) / 2, ang + frac * Math.PI);
+      s.appendChild(TXT(lx, ly + 4, n1(100 * frac) + "%", { "text-anchor": "middle", fill: "#fff", "font-size": 11.5, "font-weight": 700 }));
+    }
+    ang = a2;
+  });
+  s.appendChild(TXT(cx, cy - 4, n0(total), { "text-anchor": "middle", "font-size": 25, "font-weight": 700, fill: axisC() }));
+  s.appendChild(TXT(cx, cy + 16, opt.center || "servidores", { "text-anchor": "middle", "font-size": 11 }));
+  // legenda lateral
+  entries.slice(0, 8).forEach((e, i) => {
+    const y = 42 + i * 26, col = (opt.colors && opt.colors[e[0]]) || PAL[i % PAL.length];
+    s.appendChild(E("rect", { x: 286, y: y - 9, width: 11, height: 11, rx: 3, fill: col }));
+    s.appendChild(TXT(303, y, (e[0].length > 17 ? e[0].slice(0, 16) + "…" : e[0]), { "font-size": 11 }));
+    s.appendChild(TXT(303, y + 13, `${n0(e[1])} · ${pf(e[1], total)}`, { "font-size": 10, opacity: .8 }));
+  });
+  return s;
+}
+
+/* --- área acumulada --- */
+function chartArea(cats, vals, opt) {
+  opt = opt || {};
+  const W = 760, H = 300, ml = 60, mr = 16, mt = 16, mb = 58;
+  const iw = W - ml - mr, ih = H - mt - mb;
+  let acc = 0; const cum = vals.map(v => acc += v);
+  const max = Math.max(1, ...cum);
+  const s = svg(W, H);
+  const X = i => ml + (cats.length > 1 ? iw * i / (cats.length - 1) : iw / 2), Y = v => mt + ih - ih * v / max;
+  for (let i = 0; i <= 4; i++) {
+    const y = mt + ih - ih * i / 4;
+    s.appendChild(E("line", { x1: ml, x2: ml + iw, y1: y, y2: y, stroke: lineC() }));
+    s.appendChild(TXT(ml - 8, y + 4, n0(max * i / 4) + (opt.unit || ""), { "text-anchor": "end", "font-size": 10 }));
+  }
+  const g = E("linearGradient", { id: "gA", x1: 0, y1: 0, x2: 0, y2: 1 }, [
+    E("stop", { offset: "0%", "stop-color": C.cyan, "stop-opacity": .5 }),
+    E("stop", { offset: "100%", "stop-color": C.cyan, "stop-opacity": .04 })]);
+  s.appendChild(E("defs", {}, [g]));
+  const pts = cum.map((v, i) => [X(i), Y(v)]);
+  s.appendChild(E("path", { d: `M${ml},${mt + ih}L` + pts.map(p => p.join(",")).join("L") + `L${X(cats.length - 1)},${mt + ih}Z`, fill: "url(#gA)" }));
+  s.appendChild(E("path", { d: "M" + pts.map(p => p.join(",")).join("L"), fill: "none", stroke: C.cyan, "stroke-width": 2.6 }));
+  // barras do período
+  const bmax = Math.max(1, ...vals);
+  cats.forEach((c, i) => {
+    const hh = ih * vals[i] / max, x = X(i) - 9;
+    const r = E("rect", { x, y: mt + ih - hh, width: 18, height: Math.max(0, hh), fill: C.blue, opacity: .28, rx: 2 });
+    bindTip(r, `<b>${esc(c)}</b><br>No período: ${n1(vals[i])}${opt.unit || ""}<br>Acumulado: ${n1(cum[i])}${opt.unit || ""}`);
+    s.appendChild(r);
+    const ci = E("circle", { cx: X(i), cy: Y(cum[i]), r: 4, fill: C.cyan, stroke: "#fff", "stroke-width": 1.2 });
+    bindTip(ci, `<b>${esc(c)}</b><br>Acumulado: ${n1(cum[i])}${opt.unit || ""}<br>${pf(cum[i], max)} do potencial mapeado`);
+    s.appendChild(ci);
+    s.appendChild(TXT(X(i), mt + ih + 16, c, { "text-anchor": "end", "font-size": 10, transform: `rotate(-38 ${X(i)} ${mt + ih + 16})` }));
+  });
+  s.appendChild(E("line", { x1: ml, x2: ml + iw, y1: mt + ih, y2: mt + ih, stroke: axisC() }));
+  return s;
+}
+
+/* --- heatmap --- */
+function chartHeat(rowsL, colsL, mat, opt) {
+  opt = opt || {};
+  const cw = 46, rh = 25, ml = 108, mt = 40, mr = 16, mb = 12;
+  const W = Math.max(760, ml + cw * colsL.length + mr), H = mt + rh * rowsL.length + mb;
+  const s = svg(W, H);
+  let max = 1; mat.forEach(r => r.forEach(v => { if (v > max) max = v; }));
+  colsL.forEach((c, j) => s.appendChild(TXT(ml + cw * j + cw / 2, mt - 10, c, {
+    "text-anchor": "start", "font-size": 10, transform: `rotate(-45 ${ml + cw * j + cw / 2} ${mt - 10})`
+  })));
+  rowsL.forEach((r, i) => {
+    s.appendChild(TXT(ml - 9, mt + rh * i + rh / 2 + 4, r, { "text-anchor": "end", "font-size": 11 }));
+    colsL.forEach((c, j) => {
+      const v = mat[i][j], t = v / max;
+      const rect = E("rect", {
+        x: ml + cw * j + 1.5, y: mt + rh * i + 1.5, width: cw - 3, height: rh - 3, rx: 3,
+        fill: v ? `rgba(0,163,224,${(.12 + .84 * Math.sqrt(t)).toFixed(3)})` : "transparent",
+        stroke: v ? "none" : lineC()
+      });
+      bindTip(rect, `<b>${esc(r)} · ${esc(c)}</b><br>${n0(v)} servidores${opt.note ? "<br>" + opt.note : ""}`);
+      s.appendChild(rect);
+      if (v) s.appendChild(TXT(ml + cw * j + cw / 2, mt + rh * i + rh / 2 + 4, n0(v),
+        { "text-anchor": "middle", "font-size": 10, "font-weight": 600, fill: t > .55 ? "#fff" : axisC() }));
+    });
+  });
+  return s;
+}
+
+/* --- barras simples com valor --- */
+function chartBars(entries, opt) {
+  opt = opt || {};
+  const items = entries.map(e => e[0]);
+  const series = [{ name: opt.name || "Servidores", color: opt.color || C.cyan, vals: Object.fromEntries(entries) }];
+  return chartHBars(items, series, opt);
+}
+
+/* ============================================================
+   KPIs
+   ============================================================ */
+function kpiCard(o) {
+  let tr;
+  if (o.cmp === null || o.cmp === undefined)
+    tr = `<span class="trend t-fl">→ Sem histórico comparável</span>`;
+  else {
+    const d = o.cmp, up = d > 0.05, dn = d < -0.05;
+    const cls = up ? (o.invert ? "t-dn" : "t-up") : dn ? (o.invert ? "t-up" : "t-dn") : "t-fl";
+    const ar = up ? "▲" : dn ? "▼" : "→";
+    tr = `<span class="trend ${cls}">${ar} ${n1(Math.abs(d))}%</span> <span style="font-size:11.5px">vs ${esc(o.cmpLb)}</span>`;
+  }
+  return `<div class="card kpi ${o.k || ""}">
+    <div class="lb">${esc(o.lb)}</div>
+    <div class="vl">${o.vl}<span class="un">${o.un || ""}</span></div>
+    <div class="dt">${tr}</div>
+    <div class="dt" style="margin-top:6px">${o.dt}</div></div>`;
+}
+
+function renderKPIs() {
+  const R = VIEW, T = R.length;
+  const cand = R.filter(r => r.cand), desc = R.filter(r => r.clas === "DESCARTE");
+  const fora = R.filter(r => r.foraSup), pos = R.filter(r => r.posEos > 0);
+  const atras = R.filter(r => r.atraso), reut = R.filter(r => r.st === "REUTILIZADO");
+  const resv = R.filter(r => r.st === "RESERVADO");
+  const ramTB = sum(R, "ram") / 1024, coresT = sum(R, "cores");
+  const cq = curQ(), pq = prevQ(cq);
+  const nCq = R.filter(r => r.q === cq).length, nPq = pq ? R.filter(r => r.q === pq).length : 0;
+  const cmpQ = (pq && nPq > 0) ? (100 * (nCq - nPq) / nPq) : null;
+  const posDias = pos.length ? sum(pos, "posEos") / pos.length : 0;
+
+  $("#kpis").innerHTML = [
+    kpiCard({
+      lb: "Servidores mapeados", vl: n0(T), dt: `${n0(new Set(R.map(r => r.site)).size - (R.some(r => r.site === "N/D") ? 1 : 0))} sites · ${n0(new Set(R.map(r => r.forn)).size)} fornecedores`,
+      cmp: null
+    }),
+    kpiCard({
+      lb: "Candidatos a reuso", vl: n0(cand.length), un: ` (${pf(cand.length, T)})`, k: "k-ok", cmp: null,
+      dt: `${n0(R.filter(r => r.clas === "REUSO").length)} confirmados · ${n0(R.filter(r => r.clas === "OPORTUNIDADE REUSO").length)} em avaliação`
+    }),
+    kpiCard({
+      lb: "Fora de suporte (EOS vencido)", vl: n0(fora.length), un: ` (${pf(fora.length, T)})`, k: "k-bad", cmp: null,
+      dt: `EOS anterior a ${REF_LB} · ${n0(desc.filter(r => r.foraSup).length)} já classificados como descarte`
+    }),
+    kpiCard({
+      lb: "Liberação prevista após o EOS", vl: n0(pos.length), un: ` (${pf(pos.length, T)})`, k: "k-bad", cmp: null,
+      dt: `Exposição média de <b>${n0(posDias)} dias</b> operando sem suporte de fábrica`
+    }),
+    kpiCard({
+      lb: "Backlog de liberação", vl: n0(atras.length), k: "k-warn", cmp: null,
+      dt: `Data de liberação vencida e status ainda “NÃO LIBERADO”`
+    }),
+    kpiCard({
+      lb: `Liberações em ${cq}`, vl: n0(nCq), un: " srv", cmp: cmpQ, cmpLb: pq || "—",
+      dt: pq ? `${cq}: ${n0(nCq)} · ${pq}: ${n0(nPq)} servidores` : "Sem quarter anterior na base"
+    }),
+    kpiCard({
+      lb: "Capacidade mapeada", vl: n1(ramTB), un: " TB RAM", cmp: null,
+      dt: `${n0(coresT)} núcleos de CPU informados · ${pf(R.filter(r => r.ram > 0).length, T)} da base com RAM preenchida`
+    }),
+    kpiCard({
+      lb: "Reuso efetivado", vl: n0(reut.length), un: ` (${pf(reut.length, cand.length)})`, k: "k-warn", cmp: null,
+      dt: `${n0(resv.length)} reservados aguardando execução · ${n0(cand.length - reut.length - resv.length)} sem destino firmado`
+    })
+  ].join("");
+}
+
+/* ============================================================
+   DESTAQUES EXECUTIVOS
+   ============================================================ */
+function renderInsights() {
+  const R = VIEW, T = R.length, out = [];
+  if (!T) { $("#insights").innerHTML = `<div class="card">Nenhum servidor atende aos filtros selecionados.</div>`; return; }
+  const cand = R.filter(r => r.cand);
+
+  // 1. pico de liberação
+  const byQ = cnt(R.filter(r => r.q !== "SEM DATA"), "q");
+  const pico = sortMap(byQ)[0];
+  if (pico) out.push({
+    r: "r-med", tag: "Atenção", t: "Pico de liberação concentrado em um único trimestre",
+    big: `${pico[0]} · ${n0(pico[1])} servidores`,
+    o: `${pf(pico[1], T)} de todo o parque filtrado tem liberação de hardware prevista para <b>${pico[0]}</b>, contra uma média de ${n0(R.filter(r => r.q !== "SEM DATA").length / Math.max(1, byQ.size))} servidores por trimestre.`,
+    p: `Um pico dessa magnitude exige janela de campo, logística reversa e capacidade de datacenter concentradas em 90 dias, com risco direto de estouro de prazo e custo.`,
+    a: `Antecipar parte das desativações para os trimestres anteriores, que estão subutilizados, e travar contratação de logística com antecedência.`
+  });
+
+  // 2. fora de suporte
+  const fora = R.filter(r => r.foraSup);
+  if (fora.length) {
+    const pf1 = sortMap(cnt(fora, "forn"))[0];
+    out.push({
+      r: "r-high", tag: "Risco", t: "Parque relevante já opera fora do suporte do fabricante",
+      big: `${n0(fora.length)} servidores (${pf(fora.length, T)})`,
+      o: `${n0(fora.length)} equipamentos possuem data de End of Support anterior a ${REF_LB}${pf1 ? `, concentrados em <b>${pf1[0]}</b> (${n0(pf1[1])} unidades)` : ""}.`,
+      p: `Sem suporte de fábrica não há SLA de peças nem correção de vulnerabilidades — o risco recai integralmente sobre a operação, e serviços de core rodam sobre esse hardware.`,
+      a: `Confirmar cobertura por contrato de terceiros ou estoque de sobressalentes para o período restante até a desativação efetiva.`
+    });
+  }
+
+  // 3. liberação após EOS
+  const pos = R.filter(r => r.posEos > 0);
+  if (pos.length) {
+    const md = sum(pos, "posEos") / pos.length;
+    const byF = new Map(); pos.forEach(r => { const a = byF.get(r.forn) || [0, 0]; a[0]++; a[1] += r.posEos; byF.set(r.forn, a); });
+    const worst = [...byF.entries()].sort((a, b) => (b[1][1] / b[1][0]) - (a[1][1] / a[1][0]))[0];
+    out.push({
+      r: "r-high", tag: "Risco", t: "Cronograma de saída ultrapassa o fim de suporte",
+      big: `${n0(pos.length)} servidores · ${n0(md)} dias de exposição média`,
+      o: `Em ${n0(pos.length)} equipamentos (${pf(pos.length, T)}) a data de liberação do hardware é <b>posterior</b> ao EOS${worst ? `; o pior caso é <b>${worst[0]}</b>, com ${n0(worst[1][1] / worst[1][0])} dias médios de operação pós-EOS` : ""}.`,
+      p: `O plano de migração está mais lento que o ciclo de vida do ativo: a empresa assume ${n1(md / 365)} anos médios de risco técnico não contratado por equipamento.`,
+      a: `Reordenar as ondas de migração priorizando os ativos com maior gap EOS→liberação, ou negociar extensão de suporte formal para essa janela.`
+    });
+  }
+
+  // 4. concentração geográfica
+  const sites = sortMap(cnt(R, "site")).filter(e => e[0] !== "N/D");
+  if (sites.length >= 3) {
+    const t3 = sites.slice(0, 3), s3 = t3.reduce((a, e) => a + e[1], 0);
+    out.push({
+      r: "", tag: "Concentração", t: "Volume concentrado em poucos sites",
+      big: `${pf(s3, T)} em 3 sites`,
+      o: `<b>${t3.map(e => e[0]).join(", ")}</b> respondem por ${n0(s3)} dos ${n0(T)} servidores, distribuídos entre ${n0(sites.length)} sites no total.`,
+      p: `A concentração favorece ganho de escala em campo, mas cria dependência: atraso em um único site compromete boa parte do cronograma corporativo.`,
+      a: `Tratar esses sites como frentes dedicadas de projeto, com responsável e cronograma próprios, em vez de diluí-los no plano geral.`
+    });
+  }
+
+  // 5. conversão de reuso
+  const reut = R.filter(r => r.st === "REUTILIZADO").length, resv = R.filter(r => r.st === "RESERVADO").length;
+  if (cand.length) out.push({
+    r: "r-opp", tag: "Oportunidade", t: "Potencial de reuso ainda não convertido em economia",
+    big: `${n0(cand.length)} candidatos · ${n0(reut)} reutilizados`,
+    o: `Dos ${n0(cand.length)} servidores classificados como reuso ou oportunidade de reuso, apenas <b>${n0(reut)} (${pf(reut, cand.length)})</b> constam como efetivamente reutilizados e ${n0(resv)} estão reservados.`,
+    p: `Cada servidor reaproveitado evita CAPEX de aquisição; a taxa atual indica que o benefício financeiro do programa ainda está majoritariamente na intenção, não no resultado.`,
+    a: `Definir destino formal e data para os ${n0(cand.length - reut - resv)} candidatos sem reserva antes que o EOS os torne inelegíveis para reuso.`
+  });
+
+  // 6. lacuna de inventário
+  const semRam = cand.filter(r => r.ram === 0).length, semCpu = cand.filter(r => r.cores === 0).length;
+  if (semRam) out.push({
+    r: "r-med", tag: "Atenção", t: "Inventário técnico incompleto nos candidatos a reuso",
+    big: `${pf(semRam, cand.length)} sem RAM cadastrada`,
+    o: `${n0(semRam)} dos ${n0(cand.length)} candidatos a reuso estão sem memória informada e ${n0(semCpu)} sem núcleos de CPU.`,
+    p: `Sem CPU e memória não é possível dimensionar quanta capacidade o reuso realmente entrega, nem comparar com a compra de hardware novo.`,
+    a: `Completar o inventário desses ativos antes do próximo ciclo de planejamento de capacidade — é pré-requisito para qualquer business case de reuso.`
+  });
+
+  $("#insights").innerHTML = out.slice(0, 6).map(i => `<div class="card ins ${i.r}">
+    <h4>${esc(i.t)}<span class="tag ${i.tag.toLowerCase().replace("ç", "c").replace("ã", "a")}">${esc(i.tag)}</span></h4>
+    <div class="big">${i.big}</div>
+    <dl><dt>O que aconteceu</dt><dd>${i.o}</dd>
+    <dt>Por que importa</dt><dd>${i.p}</dd>
+    <dt>O que merece atenção</dt><dd>${i.a}</dd></dl></div>`).join("");
+}
+
+/* ============================================================
+   GRÁFICOS
+   ============================================================ */
+function clasSeries(rows, key, keys) {
+  const ct = crosstab(rows, key, "clas");
+  return CLAS_ORDER.filter(c => rows.some(r => r.clas === c)).map(c => ({
+    name: c, color: CLAS_C[c],
+    vals: Object.fromEntries(keys.map(k => [k, (ct.get(k) || new Map()).get(c) || 0]))
+  }));
+}
+const clasLegend = rows => CLAS_ORDER.filter(c => rows.some(r => r.clas === c)).map(c => [c, CLAS_C[c]]);
+
+function renderCharts() {
+  const R = VIEW, T = R.length;
+  if (!T) { ["#c-quarter", "#c-eos", "#c-expo", "#c-status", "#c-clas", "#c-cap", "#c-hyp", "#c-forn", "#c-dest", "#c-site", "#c-func", "#c-heat", "#c-plano", "#c-sup"].forEach(s => $(s).innerHTML = "<p class='ch-sub'>Sem dados para os filtros aplicados.</p>"); return; }
+
+  /* 1 · Cronograma de liberação */
+  const qs = QORDER.filter(q => R.some(r => r.q === q));
+  const byQ = cnt(R, "q"), pico = sortMap(new Map([...byQ].filter(e => e[0] !== "SEM DATA")))[0] || ["—", 0];
+  const ate27 = R.filter(r => r.q !== "SEM DATA" && r.q <= "2027/Q4").length;
+  card("#c-quarter", "Cronograma de Liberação de Hardware",
+    `O pico ocorre em <b>${pico[0]}</b>, com <b>${n0(pico[1])} servidores</b> (${pf(pico[1], T)} do total). Até o fim de 2027 acumulam-se <b>${n0(ate27)}</b> liberações — <b>${pf(ate27, T)}</b> do parque.`,
+    chartStackedBars(qs, clasSeries(R, "q", qs), { line: true, h: 340 }),
+    clasLegend(R).concat([["Acumulado", C.blue]]));
+
+  /* 2 · EOS por ano */
+  const anos = [...new Set(R.map(r => r.ano))].sort();
+  const eosSer = [
+    { name: "EOS vencido", color: C.red, vals: Object.fromEntries(anos.map(a => [a, R.filter(r => r.ano === a && r.foraSup).length])) },
+    { name: "EOS vigente", color: C.cyan, vals: Object.fromEntries(anos.map(a => [a, R.filter(r => r.ano === a && !r.foraSup).length])) }
+  ];
+  const fora = R.filter(r => r.foraSup).length, exp12 = R.filter(r => !r.foraSup && r.eos !== "N/D" && r.eos < "2027-08-05").length;
+  card("#c-eos", "Parque por Ano de End of Support",
+    `<b>${n0(fora)} servidores (${pf(fora, T)})</b> já estão fora de suporte e outros <b>${n0(exp12)}</b> vencem nos próximos 12 meses — juntos representam <b>${pf(fora + exp12, T)}</b> do parque.`,
+    chartStackedBars(anos, eosSer, { h: 300 }),
+    [["EOS vencido", C.red], ["EOS vigente", C.cyan]]);
+
+  /* 3 · Exposição pós-EOS */
+  const pos = R.filter(r => r.posEos > 0);
+  const expM = new Map(); pos.forEach(r => { const a = expM.get(r.forn) || [0, 0]; a[0]++; a[1] += r.posEos; expM.set(r.forn, a); });
+  const expE = [...expM.entries()].map(([k, v]) => [k + " (" + n0(v[0]) + " srv)", Math.round(v[1] / v[0])]).sort((a, b) => b[1] - a[1]);
+  const pior = expE[0];
+  card("#c-expo", "Exposição Média Após o Fim de Suporte",
+    pos.length
+      ? `<b>${n0(pos.length)} servidores</b> serão liberados depois do próprio EOS${pior ? `; <b>${pior[0].split(" (")[0]}</b> lidera com <b>${n0(pior[1])} dias</b> médios de operação sem suporte de fábrica` : ""}.`
+      : `Nenhum servidor no recorte atual tem liberação prevista após o EOS.`,
+    expE.length ? chartHBars(expE.map(e => e[0]), [{ name: "Dias médios pós-EOS", color: C.red, vals: Object.fromEntries(expE) }], { rowH: 34, ml: 150 }) : null,
+    [["Dias médios operando após o EOS", C.red]]);
+
+  /* 4 · Status x classificação */
+  const sts = [...new Set(R.map(r => r.st))].sort((a, b) => cnt(R, "st").get(b) - cnt(R, "st").get(a));
+  const nl = R.filter(r => r.st === "NÃO LIBERADO").length, atras = R.filter(r => r.atraso).length;
+  card("#c-status", "Situação de Liberação do Hardware",
+    `<b>${pf(nl, T)}</b> do parque continua com status “NÃO LIBERADO”, incluindo <b>${n0(atras)} servidores cuja data de liberação já venceu</b> — backlog que trava tanto o descarte quanto o reuso.`,
+    chartHBars(sts, clasSeries(R, "st", sts), { rowH: 36, ml: 128 }), clasLegend(R));
+
+  /* 5 · Classificação (donut) */
+  const clasE = CLAS_ORDER.filter(c => R.some(r => r.clas === c)).map(c => [c, R.filter(r => r.clas === c).length]);
+  const cand = R.filter(r => r.cand).length, dsc = R.filter(r => r.clas === "DESCARTE").length;
+  card("#c-clas", "Destinação do Parque",
+    `<b>${pf(cand, T)}</b> do parque é candidato a reuso (${n0(cand)} servidores) enquanto <b>${pf(dsc, T)}</b> segue para descarte — a decisão sobre ${n0(R.filter(r => r.clas === "OPORTUNIDADE REUSO").length)} equipamentos ainda está em aberto.`,
+    chartDonut(clasE, { colors: CLAS_C, center: "servidores" }));
+
+  /* 6 · Capacidade acumulada */
+  const capQ = QORDER.filter(q => q !== "SEM DATA" && R.some(r => r.cand && r.q === q));
+  const capV = capQ.map(q => sum(R.filter(r => r.cand && r.q === q), "ram") / 1024);
+  const totTB = sum(R.filter(r => r.cand), "ram") / 1024;
+  const meta = capQ.findIndex((q, i) => capV.slice(0, i + 1).reduce((a, b) => a + b, 0) >= totTB / 2);
+  card("#c-cap", "Capacidade de Memória Liberada para Reuso (acumulada)",
+    `O reuso mapeado soma <b>${n1(totTB)} TB de RAM</b>${meta >= 0 ? `; metade dessa capacidade só fica disponível a partir de <b>${capQ[meta]}</b>` : ""} — o benefício financeiro é majoritariamente futuro, não imediato.`,
+    capQ.length ? chartArea(capQ, capV, { unit: " TB" }) : null,
+    [["TB de RAM no trimestre", C.blue], ["Acumulado", C.cyan]]);
+
+  /* 7 · Hypervisor */
+  const hypE = sortMap(cnt(R, "hyp"));
+  const vm = R.filter(r => r.hyp === "VMWARE").length;
+  card("#c-hyp", "Plataforma de Virtualização",
+    `<b>VMware responde por ${pf(vm, T)}</b> do parque (${n0(vm)} servidores), o que torna a saída do VMware o principal vetor de liberação de hardware da base.`,
+    chartDonut(hypE, { center: "servidores" }));
+
+  /* 8 · Fornecedor */
+  const forns = sortMap(cnt(R, "forn")).map(e => e[0]);
+  const f2 = sortMap(cnt(R, "forn")).slice(0, 2);
+  card("#c-forn", "Fornecedor × Destinação",
+    `<b>${f2.map(e => e[0]).join(" e ")}</b> concentram <b>${pf(f2.reduce((a, e) => a + e[1], 0), T)}</b> do parque; a destinação, porém, é muito desigual entre eles.`,
+    chartHBars(forns, clasSeries(R, "forn", forns), { rowH: 34, ml: 96 }), clasLegend(R));
+
+  /* 9 · Destino */
+  const destE = sortMap(cnt(R, "dest")).slice(0, 8);
+  const aguard = R.filter(r => r.dest === "AGUARDANDO LIBERAÇÃO").length;
+  card("#c-dest", "Destino Declarado do Ativo",
+    `<b>${n0(aguard)} servidores</b> permanecem em “aguardando liberação” — ${pf(aguard, T)} do parque sem destino produtivo definido.`,
+    chartBars(destE, { color: C.violet, rowH: 30, ml: 150 }), [["Servidores", C.violet]]);
+
+  /* 10 · Sites */
+  const sitesE = sortMap(cnt(R, "site")).slice(0, 12), sitesK = sitesE.map(e => e[0]);
+  const s3 = sitesE.slice(0, 3).reduce((a, e) => a + e[1], 0);
+  card("#c-site", "Concentração por Site de Origem (Top 12)",
+    `Os três maiores sites — <b>${sitesE.slice(0, 3).map(e => e[0]).join(", ")}</b> — concentram <b>${pf(s3, T)}</b> do parque analisado.`,
+    chartHBars(sitesK, clasSeries(R, "site", sitesK), { rowH: 27, ml: 84 }), clasLegend(R));
+
+  /* 11 · Função */
+  const funcE = sortMap(cnt(R, "func")).slice(0, 10), funcK = funcE.map(e => e[0]);
+  const f3 = funcE.slice(0, 3).reduce((a, e) => a + e[1], 0);
+  card("#c-func", "Função Atual do Servidor (Top 10)",
+    `<b>${funcE.slice(0, 3).map(e => e[0]).join(", ")}</b> somam <b>${pf(f3, T)}</b> do parque — são essas plataformas que ditam o ritmo real de liberação.`,
+    chartHBars(funcK, clasSeries(R, "func", funcK), { rowH: 27, ml: 148 }), clasLegend(R));
+
+  /* 12 · Heatmap site × quarter */
+  const hs = sitesE.slice(0, 10).map(e => e[0]);
+  const hq = QORDER.filter(q => R.some(r => r.q === q && hs.includes(r.site)));
+  const mat = hs.map(s => hq.map(q => R.filter(r => r.site === s && r.q === q).length));
+  let hot = { v: 0, s: "", q: "" };
+  mat.forEach((row, i) => row.forEach((v, j) => { if (v > hot.v) hot = { v, s: hs[i], q: hq[j] }; }));
+  card("#c-heat", "Mapa de Calor · Site × Trimestre de Liberação",
+    `A maior célula isolada é <b>${hot.s} em ${hot.q}</b>, com <b>${n0(hot.v)} servidores</b> (${pf(hot.v, T)} do parque) — é o ponto de maior demanda simultânea de campo e logística.`,
+    chartHeat(hs, hq, mat, { note: "Site de origem × trimestre de liberação do hardware" }));
+
+  /* 13 · Plano de migração */
+  const plR = R.filter(r => r.plano !== "N/D");
+  const plK = sortMap(cnt(plR, "plano")).map(e => e[0]);
+  const plSer = ["SEM SUPORTE", "COM SUPORTE"].filter(s => plR.some(r => r.sup === s)).map((s, i) => ({
+    name: s, color: s === "SEM SUPORTE" ? C.red : C.green,
+    vals: Object.fromEntries(plK.map(k => [k, plR.filter(r => r.plano === k && r.sup === s).length]))
+  }));
+  const plTop = sortMap(cnt(plR, "plano"))[0];
+  card("#c-plano", "Programas de Migração que Liberam Hardware",
+    plR.length
+      ? `<b>${plTop[0]}</b> é o maior liberador, com <b>${n0(plTop[1])} servidores</b> (${pf(plTop[1], plR.length)} dos ativos com plano definido). Atrasos nesse programa travam diretamente o descarte.`
+      : "Nenhum servidor com plano de migração no recorte atual.",
+    plK.length ? chartHBars(plK, plSer, { rowH: 30, ml: 168 }) : null,
+    [["Sem suporte", C.red], ["Com suporte", C.green]]);
+
+  /* 14 · Suporte × quarter */
+  const supQ = QORDER.filter(q => plR.some(r => r.q === q));
+  const supSer = ["SEM SUPORTE", "COM SUPORTE"].filter(s => plR.some(r => r.sup === s)).map(s => ({
+    name: s, color: s === "SEM SUPORTE" ? C.red : C.green,
+    vals: Object.fromEntries(supQ.map(q => [q, plR.filter(r => r.q === q && r.sup === s).length]))
+  }));
+  const semSup = plR.filter(r => r.sup === "SEM SUPORTE").length;
+  card("#c-sup", "Cobertura de Suporte na Fila de Descarte",
+    plR.length
+      ? `<b>${pf(semSup, plR.length)} dos servidores em fila de descarte já estão sem suporte</b> (${n0(semSup)} de ${n0(plR.length)}) e continuarão em produção até a data de liberação prevista.`
+      : "Sem dados de suporte no recorte atual.",
+    supQ.length ? chartStackedBars(supQ, supSer, { h: 300 }) : null,
+    [["Sem suporte", C.red], ["Com suporte", C.green]]);
+}
+
+/* ============================================================
+   RECOMENDAÇÕES
+   ============================================================ */
+function renderRecs() {
+  const R = VIEW, T = R.length || 1;
+  const cand = R.filter(r => r.cand), reut = R.filter(r => r.st === "REUTILIZADO").length;
+  const resv = R.filter(r => r.st === "RESERVADO").length, semDest = cand.length - reut - resv;
+  const fora = R.filter(r => r.foraSup).length, pos = R.filter(r => r.posEos > 0);
+  const atras = R.filter(r => r.atraso).length;
+  const posD = pos.length ? Math.round(sum(pos, "posEos") / pos.length) : 0;
+  const tb = sum(cand, "ram") / 1024, cor = sum(cand, "cores");
+  const byQ = sortMap(new Map([...cnt(R, "q")].filter(e => e[0] !== "SEM DATA")))[0] || ["—", 0];
+  const sites = sortMap(cnt(R, "site")).slice(0, 3);
+  const semRam = cand.filter(r => r.ram === 0).length;
+  const plTop = sortMap(cnt(R.filter(r => r.plano !== "N/D"), "plano"))[0];
+
+  $("#recs").innerHTML = `
+  <div class="card rec opp"><h3><span class="ic">▲</span>Oportunidades</h3><ul>
+    <li><b>Evitar CAPEX com ${n0(cand.length)} servidores reaproveitáveis</b>
+      Somam <b>${n1(tb)} TB de RAM</b> e ${n0(cor)} núcleos já inventariados. Direcionar essa capacidade a projetos de expansão substitui compra de hardware novo.</li>
+    <li><b>Destravar ${n0(semDest)} candidatos sem destino firmado</b>
+      Já classificados como reuso, mas sem reserva nem reutilização registrada. É o estoque de valor mais líquido da base.</li>
+    <li><b>Ganho de escala nos três maiores sites</b>
+      ${sites.map(s => s[0]).join(", ")} concentram ${n0(sites.reduce((a, s) => a + s[1], 0))} servidores: uma única mobilização de campo por site cobre ${pf(sites.reduce((a, s) => a + s[1], 0), T)} do parque.</li>
+    <li><b>Reduzir custo recorrente de suporte e datacenter</b>
+      ${n0(R.filter(r => r.clas === "DESCARTE").length)} equipamentos destinados a descarte ainda ocupam rack, energia e refrigeração até a liberação.</li>
+  </ul></div>
+
+  <div class="card rec risk"><h3><span class="ic">▼</span>Riscos</h3><ul>
+    <li><b>${n0(fora)} servidores fora de suporte <span class="prazo p1">crítico</span></b>
+      ${pf(fora, T)} do parque opera sem cobertura de fábrica — sem SLA de peças nem correções de segurança.</li>
+    <li><b>${n0(pos.length)} liberações previstas depois do EOS <span class="prazo p1">crítico</span></b>
+      Exposição média de ${n0(posD)} dias (${n1(posD / 365)} anos) de operação sem suporte contratado por equipamento.</li>
+    <li><b>Backlog de ${n0(atras)} liberações vencidas <span class="prazo p2">alto</span></b>
+      Data de liberação já passou e o status permanece “NÃO LIBERADO”, indicando desvio entre plano e execução.</li>
+    <li><b>Pico operacional em ${byQ[0]} <span class="prazo p2">alto</span></b>
+      ${n0(byQ[1])} servidores (${pf(byQ[1], T)}) concentrados em um único trimestre de campo e logística.</li>
+    <li><b>Dependência de um único programa</b>
+      ${plTop ? `${plTop[0]} responde por ${n0(plTop[1])} servidores da fila de descarte; atraso nele propaga-se por toda a cadeia.` : "Sem plano de migração informado no recorte atual."}</li>
+  </ul></div>
+
+  <div class="card rec act"><h3><span class="ic">✔</span>Ações Recomendadas</h3><ul>
+    <li><b>1 · Plano de contenção para o hardware fora de suporte <span class="prazo p1">30 dias</span></b>
+      Mapear cobertura por suporte de terceiros ou estoque de sobressalentes para os ${n0(fora)} equipamentos vencidos e formalizar aceite de risco onde não houver.</li>
+    <li><b>2 · Repriorizar as ondas de migração pelo gap EOS→liberação <span class="prazo p1">30 dias</span></b>
+      Colocar na frente da fila os ${n0(pos.length)} ativos cuja liberação ocorre após o EOS, reduzindo a janela média de ${n0(posD)} dias de exposição.</li>
+    <li><b>3 · Sanear o backlog de ${n0(atras)} liberações vencidas <span class="prazo p2">45 dias</span></b>
+      Revisar item a item: liberar, reprogramar com nova data ou reclassificar. Backlog sem tratamento contamina todo o cronograma.</li>
+    <li><b>4 · Completar o inventário técnico <span class="prazo p2">45 dias</span></b>
+      ${n0(semRam)} candidatos a reuso estão sem memória cadastrada — sem isso não há business case comparável entre reuso e compra.</li>
+    <li><b>5 · Atribuir destino formal aos ${n0(semDest)} candidatos livres <span class="prazo">60 dias</span></b>
+      Vincular cada ativo a um projeto receptor com data, ou reclassificar para descarte e liberar o espaço físico.</li>
+    <li><b>6 · Antecipar carga do pico de ${byQ[0]} <span class="prazo">90 dias</span></b>
+      Distribuir parte das ${n0(byQ[1])} desativações para trimestres anteriores subutilizados e contratar logística com antecedência.</li>
+  </ul></div>`;
+
+  const nd = k => R.filter(r => r[k] === "N/D" || r[k] === "NÃO INFORMADO").length;
+  $("#qualnote").innerHTML = `<b>Nota de qualidade dos dados (recorte atual: ${n0(R.length)} registros).</b>
+    Lacunas identificadas na origem e não estimadas: RAM ausente em ${n0(R.filter(r => r.ram === 0).length)} registros
+    (${pf(R.filter(r => r.ram === 0).length, T)}); núcleos de CPU ausentes em ${n0(R.filter(r => r.cores === 0).length)} (${pf(R.filter(r => r.cores === 0).length, T)});
+    site de origem em ${n0(nd("site"))}; hypervisor em ${n0(nd("hyp"))}; trimestre de liberação em ${n0(R.filter(r => r.q === "SEM DATA").length)}.
+    As colunas <i>CPU MODEL</i>, <i>HDD_GB</i> e <i>VERSÃO HYPERVISOR</i> estão integralmente vazias no arquivo de origem e por isso não foram usadas em nenhum indicador.
+    Os campos de CPU e memória cobrem parcialmente o parque — os totais de capacidade representam <b>o mínimo confirmado</b>, não o total real.`;
+}
+
+/* ============================================================
+   TABELA
+   ============================================================ */
+const COLS = [
+  ["host", "Hostname"], ["sn", "Serial"], ["forn", "Fornecedor"], ["mod", "Modelo"],
+  ["site", "Site Origem"], ["hyp", "Hypervisor"], ["func", "Função Atual"], ["tipo", "Tipo"],
+  ["clas", "Classificação"], ["st", "Status"], ["dest", "Destino"], ["cores", "Cores"], ["ram", "RAM (GB)"],
+  ["q", "Quarter Lib."], ["libHW", "Lib. Hardware"], ["eos", "EOS"], ["sup", "Suporte"], ["plano", "Plano Migração"]
+];
+const PILL = { "REUSO": "p-reuso", "DESCARTE": "p-desc", "OPORTUNIDADE REUSO": "p-opor", "MANTER": "p-mant", "NÃO CLASSIFICADO": "p-mant" };
+
+function sorted() {
+  const { c, d } = S.sort;
+  return [...VIEW].sort((a, b) => {
+    const x = a[c], y = b[c];
+    if (typeof x === "number" && typeof y === "number") return (x - y) * d;
+    return String(x).localeCompare(String(y), "pt-BR") * d;
+  });
+}
+function renderTable() {
+  const th = $("#tbl thead"), tb = $("#tbl tbody");
+  th.innerHTML = "<tr>" + COLS.map(([k, l]) =>
+    `<th data-c="${k}">${l}<span class="ar">${S.sort.c === k ? (S.sort.d > 0 ? "▲" : "▼") : "⇅"}</span></th>`).join("") + "</tr>";
+  th.querySelectorAll("th").forEach(t => t.onclick = () => {
+    const c = t.dataset.c; S.sort = { c, d: S.sort.c === c ? -S.sort.d : 1 }; S.page = 1; renderTable();
+  });
+  const all = sorted(), tot = all.length, pages = Math.max(1, Math.ceil(tot / S.size));
+  S.page = Math.min(S.page, pages);
+  const st = (S.page - 1) * S.size, rows = all.slice(st, st + S.size);
+  tb.innerHTML = rows.map(r => "<tr>" + COLS.map(([k]) => {
+    let v = r[k];
+    if (k === "clas") return `<td><span class="pill ${PILL[v] || "p-mant"}">${esc(v)}</span></td>`;
+    if (k === "libHW" || k === "eos") return `<td${k === "eos" && r.foraSup ? ' style="color:var(--bad);font-weight:600"' : ""}>${dbr(v)}</td>`;
+    if (k === "cores" || k === "ram") return `<td style="text-align:right">${v ? n0(v) : "—"}</td>`;
+    return `<td>${esc(v)}</td>`;
+  }).join("") + "</tr>").join("") || `<tr><td colspan="${COLS.length}" style="text-align:center;padding:30px">Nenhum registro encontrado.</td></tr>`;
+  $("#pinfo").innerHTML = `<b>${n0(st + 1)}–${n0(Math.min(st + S.size, tot))}</b> de <b>${n0(tot)}</b> · página ${S.page}/${pages}`;
+  $("#pf").disabled = $("#pp").disabled = S.page <= 1;
+  $("#pn").disabled = $("#pl").disabled = S.page >= pages;
+}
+
+/* ============================================================
+   FILTROS
+   ============================================================ */
+function buildFilters() {
+  $$(".dd").forEach(dd => {
+    const k = dd.dataset.f, pan = dd.querySelector(".dd-pan"), btn = dd.querySelector(".dd-btn");
+    const c = cnt(RAW, k);
+    let vals = [...new Set(RAW.map(r => r[k]))];
+    vals = k === "q" ? vals.sort((a, b) => qIdx(a) - qIdx(b)) : vals.sort((a, b) => c.get(b) - c.get(a));
+    pan.innerHTML = vals.map(v =>
+      `<label><input type="checkbox" value="${esc(v)}"${S.f[k].has(v) ? " checked" : ""}><span>${esc(v)}</span><span class="dd-cnt">${n0(c.get(v))}</span></label>`).join("");
+    pan.querySelectorAll("input").forEach(i => i.onchange = () => {
+      i.checked ? S.f[k].add(i.value) : S.f[k].delete(i.value);
+      S.page = 1; refresh();
+    });
+    btn.onclick = e => {
+      e.stopPropagation();
+      const open = pan.classList.contains("show");
+      $$(".dd-pan").forEach(p => p.classList.remove("show"));
+      if (!open) pan.classList.add("show");
+    };
+    pan.onclick = e => e.stopPropagation();
+  });
+  document.addEventListener("click", () => $$(".dd-pan").forEach(p => p.classList.remove("show")));
+}
+function syncFilterBtns() {
+  $$(".dd").forEach(dd => {
+    const k = dd.dataset.f, b = dd.querySelector(".dd-btn"), n = S.f[k].size;
+    const lb = { clas: "Classificação", st: "Status", forn: "Fornecedor", site: "Site Origem", hyp: "Hypervisor", q: "Quarter Liberação", tipo: "Tipo" }[k];
+    b.innerHTML = `${lb}${n ? ` · ${n}` : ""} <span>▾</span>`;
+    b.classList.toggle("has", n > 0);
+  });
+  const act = FKEYS.reduce((a, k) => a + S.f[k].size, 0);
+  $("#fcount").innerHTML = `<b>${n0(VIEW.length)}</b> de ${n0(RAW.length)} servidores${act ? ` · ${act} filtro(s) ativo(s)` : ""}${S.q ? ` · busca “${esc(S.q)}”` : ""}`;
+}
+
+/* ============================================================
+   EXPORTAÇÕES
+   ============================================================ */
+function exportCSV() {
+  const head = COLS.map(c => c[1]);
+  const lines = [head.join(";")].concat(sorted().map(r => COLS.map(([k]) => {
+    let v = r[k];
+    if (k === "libHW" || k === "eos") v = dbr(v);
+    return `"${String(v).replace(/"/g, '""')}"`;
+  }).join(";")));
+  dl(new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" }),
+    `servidores_reuso_${new Date().toISOString().slice(0, 10)}.csv`);
+}
+function exportPNG(node, title) {
+  if (!node) return;
+  const vb = node.getAttribute("viewBox").split(" ").map(Number);
+  const w = vb[2], h = vb[3], sc = 2;
+  const clone = node.cloneNode(true);
+  clone.setAttribute("xmlns", NS); clone.setAttribute("width", w); clone.setAttribute("height", h);
+  const bg = getComputedStyle(document.body).backgroundColor;
+  const rect = E("rect", { x: -10, y: -10, width: w + 20, height: h + 40, fill: getComputedStyle($(".card")).backgroundColor });
+  clone.insertBefore(rect, clone.firstChild);
+  const t = TXT(4, h + 22, title + " · " + FNAME + " · " + REF_LB, { "font-size": 11, "font-weight": 600 });
+  clone.appendChild(t); clone.setAttribute("viewBox", `0 0 ${w} ${h + 32}`); clone.setAttribute("height", h + 32);
+  const s = new XMLSerializer().serializeToString(clone);
+  const img = new Image();
+  img.onload = () => {
+    const cv = document.createElement("canvas");
+    cv.width = w * sc; cv.height = (h + 32) * sc;
+    const cx = cv.getContext("2d");
+    cx.fillStyle = bg; cx.fillRect(0, 0, cv.width, cv.height);
+    cx.drawImage(img, 0, 0, cv.width, cv.height);
+    cv.toBlob(b => dl(b, title.replace(/[^\w\sÀ-ú]/g, "").replace(/\s+/g, "_").toLowerCase() + ".png"));
+  };
+  img.onerror = () => alert("Não foi possível exportar este gráfico como imagem.");
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
+}
+function dl(blob, name) {
+  const u = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = u; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(u), 1500);
+}
+
+/* ============================================================
+   LEITURA DE ARQUIVO (.xlsx nativo · sem bibliotecas externas)
+   ============================================================ */
+async function inflateRaw(u8) {
+  if (typeof DecompressionStream === "undefined") throw new Error("Este navegador não suporta descompactação nativa.");
+  const st = new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return new Uint8Array(await new Response(st).arrayBuffer());
+}
+async function unzip(buf, want) {
+  const dv = new DataView(buf), u8 = new Uint8Array(buf), td = new TextDecoder("utf-8");
+  let eocd = -1;
+  for (let i = u8.length - 22; i >= Math.max(0, u8.length - 66000); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) throw new Error("Arquivo .xlsx inválido (assinatura ZIP não encontrada).");
+  const n = dv.getUint16(eocd + 10, true); let p = dv.getUint32(eocd + 16, true);
+  const out = {};
+  for (let i = 0; i < n; i++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+    const fnl = dv.getUint16(p + 28, true), efl = dv.getUint16(p + 30, true), fcl = dv.getUint16(p + 32, true);
+    const lho = dv.getUint32(p + 42, true);
+    const name = td.decode(u8.subarray(p + 46, p + 46 + fnl));
+    p += 46 + fnl + efl + fcl;
+    if (want && !want(name)) continue;
+    const lfnl = dv.getUint16(lho + 26, true), lefl = dv.getUint16(lho + 28, true);
+    const d = u8.subarray(lho + 30 + lfnl + lefl, lho + 30 + lfnl + lefl + csize);
+    out[name] = td.decode(method === 0 ? d : await inflateRaw(d));
+  }
+  return out;
+}
+const px = t => new DOMParser().parseFromString(t, "application/xml");
+const colNum = r => { let c = 0; for (const ch of r.replace(/\d+/g, "")) c = c * 26 + (ch.charCodeAt(0) - 64); return c - 1; };
+const serialDate = v => new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 864e5).toISOString().slice(0, 10);
+
+async function readXLSX(buf) {
+  const z = await unzip(buf, n => /^xl\/(workbook\.xml|styles\.xml|sharedStrings\.xml|worksheets\/|_rels\/workbook\.xml\.rels)/.test(n));
+  const wb = px(z["xl/workbook.xml"]), rels = px(z["xl/_rels/workbook.xml.rels"]);
+  const rmap = {}; [...rels.getElementsByTagName("Relationship")].forEach(r => rmap[r.getAttribute("Id")] = r.getAttribute("Target").replace(/^\/?xl\//, ""));
+  const sheets = {};
+  [...wb.getElementsByTagName("sheet")].forEach(s => {
+    const rid = s.getAttribute("r:id") || s.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+    sheets[s.getAttribute("name")] = "xl/" + rmap[rid];
+  });
+  const sst = z["xl/sharedStrings.xml"] ? [...px(z["xl/sharedStrings.xml"]).getElementsByTagName("si")]
+    .map(si => [...si.getElementsByTagName("t")].map(t => t.textContent).join("")) : [];
+  // formatos de data
+  const dateStyle = new Set();
+  if (z["xl/styles.xml"]) {
+    const st = px(z["xl/styles.xml"]), custom = {};
+    [...st.getElementsByTagName("numFmt")].forEach(f => custom[f.getAttribute("numFmtId")] = f.getAttribute("formatCode"));
+    const bi = new Set(["14", "15", "16", "17", "18", "19", "20", "21", "22", "45", "46", "47", "27", "30", "36", "50", "57"]);
+    const xfs = st.getElementsByTagName("cellXfs")[0];
+    if (xfs) [...xfs.getElementsByTagName("xf")].forEach((xf, i) => {
+      const id = xf.getAttribute("numFmtId") || "0";
+      const code = custom[id] || "";
+      if (bi.has(id) || /[dy]/i.test(code.replace(/\[[^\]]*\]/g, "").replace(/"[^"]*"/g, ""))) dateStyle.add(i);
+    });
+  }
+  const parseSheet = path => {
+    if (!z[path]) return [];
+    const doc = px(z[path]), rows = [];
+    [...doc.getElementsByTagName("row")].forEach(r => {
+      const arr = [];
+      [...r.getElementsByTagName("c")].forEach(c => {
+        const i = colNum(c.getAttribute("r") || "A1"), t = c.getAttribute("t"), s = +(c.getAttribute("s") || -1);
+        const vN = c.getElementsByTagName("v")[0], isN = c.getElementsByTagName("is")[0];
+        let v = null;
+        if (t === "s" && vN) v = sst[+vN.textContent];
+        else if (t === "inlineStr" && isN) v = [...isN.getElementsByTagName("t")].map(x => x.textContent).join("");
+        else if (vN) { const num = +vN.textContent; v = (dateStyle.has(s) && isFinite(num) && num > 20000) ? serialDate(num) : (isFinite(num) ? num : vN.textContent); }
+        arr[i] = v;
+      });
+      rows.push(arr);
+    });
+    return rows;
+  };
+  return { sheets, parseSheet };
+}
+const HMAP = {
+  "HOSTNAME": "host", "HOST": "host", "NOME": "host", "SERVIDOR": "host",
+  "SERIAL NUMBER": "sn", "SERIAL": "sn", "S/N": "sn", "SN": "sn",
+  "FORNECEDOR": "forn", "FABRICANTE": "forn", "MODELO": "mod", "MODEL": "mod",
+  "CPU CORES": "cores", "CORES": "cores", "RAM_GB": "ram", "RAM GB": "ram", "MEMORIA": "ram", "MEMORIA GB": "ram",
+  "SITE ORIGEM": "site", "ORIGEM": "site", "SITE DESTINO": "siteDest", "DESTINO SITE": "siteDest",
+  "HYPERVISOR": "hyp", "FUNCAO ATUAL": "func", "FUNCAO": "func",
+  "TIPO": "tipo", "CLASSIFICACAO": "clas", "STATUS": "st", "DESTINO": "dest",
+  "QUARTER LIBERACAO HARDWARE": "q", "QUARTER": "q", "DATA LIBERACAO HARDWARE": "libHW",
+  "DATA LIBERACAO FUNCAO": "libFunc", "EOS": "eos", "END OF SUPPORT": "eos",
+  "SUPORTE": "sup", "PLANO MIGRACAO": "plano", "PLANO DE MIGRACAO": "plano",
+  "DISPONIBILIDADE": "disp", "DISPONIVEL": "disp"
+};
+function toRecords(rows) {
+  if (!rows.length) return [];
+  const head = (rows[0] || []).map(norm);
+  const idx = {}; head.forEach((h, i) => { if (HMAP[h]) idx[HMAP[h]] = i; });
+  if (idx.host === undefined && idx.sn === undefined) return [];
+  return rows.slice(1).filter(r => r && r.some(v => v != null && v !== "")).map(r => {
+    const o = {};
+    for (const k in idx) o[k] = r[idx[k]];
+    return o;
+  });
+}
+const recordKey = o => norm(o.sn || o.host);
+const isBlank = v => v === undefined || v === null || v === "" || v === "N/D" || v === "NAO INFORMADO" || v === "NÃO INFORMADO" || v === "NAO CLASSIFICADO" || v === "NÃO CLASSIFICADO";
+function mergeByIdentity(base, extra, defaults) {
+  const map = {};
+  extra.forEach(x => {
+    const k = recordKey(x);
+    if (!k) return;
+    const merged = Object.assign({}, defaults || {}, x);
+    Object.keys(defaults || {}).forEach(f => { if (isBlank(merged[f])) merged[f] = defaults[f]; });
+    map[k] = merged;
+  });
+  base.forEach(r => {
+    const x = map[recordKey(r)];
+    if (!x) return;
+    Object.keys(x).forEach(k => { if (k !== "host" && k !== "sn" && isBlank(r[k])) r[k] = x[k]; });
+  });
+}
+function loadRecords(recs, fname, updatedLabel) {
+  const HYP = { "WMWARE": "VMWARE", "OPENSTACK": "OPENSTACK" };
+  RAW = recs.map(o => {
+    const g = (k, d) => { const v = o[k]; return (v === undefined || v === null || v === "") ? d : String(v).trim(); };
+    const r = {
+      host: g("host", "N/D"), sn: g("sn", "N/D"), forn: g("forn", "N/D"), mod: g("mod", "N/D"),
+      cores: +o.cores || 0, ram: +o.ram || 0, site: g("site", "N/D"), siteDest: g("siteDest", "N/D"),
+      hyp: g("hyp", "NÃO INFORMADO").toUpperCase(), func: g("func", "N/D"), tipo: g("tipo", "N/D"),
+      clas: g("clas", "NÃO CLASSIFICADO").toUpperCase(), st: g("st", "NÃO INFORMADO").toUpperCase(),
+      dest: g("dest", "N/D"), q: g("q", "SEM DATA"), sup: g("sup", "N/D").toUpperCase(),
+      plano: g("plano", "N/D"), disp: g("disp", "N/D"),
+      libHW: g("libHW", "N/D").slice(0, 10), libFunc: g("libFunc", "N/D").slice(0, 10), eos: g("eos", "N/D").slice(0, 10)
+    };
+    if (HYP[r.hyp]) r.hyp = HYP[r.hyp];
+    return derive(r);
+  });
+  QORDER = [...new Set(RAW.map(r => r.q))].sort((a, b) =>
+    a === "SEM DATA" ? 1 : b === "SEM DATA" ? -1 : a.localeCompare(b));
+  FNAME = fname || FNAME;
+  setWorkbookReference(updatedLabel);
+  FKEYS.forEach(k => S.f[k] = new Set());
+  S.q = ""; $("#q").value = ""; S.page = 1;
+  buildFilters(); refresh();
+}
+
+async function fetchWorkbook() {
+  const res = await fetch(WORKBOOK_URL, { cache: "no-store" });
+  if (!res.ok) {
+    let msg = `API retornou HTTP ${res.status}.`;
+    try {
+      const data = await res.json();
+      if (data && data.error) msg = data.error;
+    } catch (e) { }
+    throw new Error(msg);
+  }
+  const buf = await res.arrayBuffer();
+  const sig = new Uint8Array(buf.slice(0, 4));
+  if (!(sig[0] === 0x50 && sig[1] === 0x4b)) throw new Error("A resposta nao parece ser um arquivo .xlsx valido.");
+  const lm = res.headers.get("Last-Modified");
+  return { buf, updatedLabel: lm ? fmtDateTime(new Date(lm)) : "nao informada" };
+}
+async function loadRemoteWorkbook() {
+  try {
+    setLoadStatus("Carregando base...");
+    const workbook = await fetchWorkbook();
+    const reader = await readXLSX(workbook.buf);
+    const missing = REQUIRED_SHEETS.filter(s => !reader.sheets[s]);
+    if (missing.length) throw new Error(`Aba(s) nao encontrada(s): ${missing.join(", ")}.`);
+
+    const base = toRecords(reader.parseSheet(reader.sheets.BASE));
+    if (!base.length) throw new Error("Nenhuma coluna reconhecida na aba BASE.");
+
+    mergeByIdentity(base, toRecords(reader.parseSheet(reader.sheets.Descarte)), { clas: "DESCARTE" });
+    mergeByIdentity(base, toRecords(reader.parseSheet(reader.sheets.REUSO)), { clas: "REUSO" });
+
+    loadRecords(base, WORKBOOK_FILE, workbook.updatedLabel);
+    setLoadStatus(`Base atualizada - ${n0(RAW.length)} registros`);
+  } catch (e) {
+    setLoadStatus("Falha ao carregar base", "error");
+    $("#kpis").innerHTML = `<div class="card kpi k-bad"><div class="lb">Carga de dados</div><div class="vl">Erro</div><div class="dt">${esc(e.message)}</div></div>`;
+    ["#c-quarter", "#c-eos", "#c-expo", "#c-status", "#c-clas", "#c-cap", "#c-hyp", "#c-forn", "#c-dest", "#c-site", "#c-func", "#c-heat", "#c-plano", "#c-sup"].forEach(s => $(s).innerHTML = "<p class='ch-sub'>Nao foi possivel carregar a base remota.</p>");
+  }
+}
+/* ============================================================
+   TEMA · SIDEBAR · NAVEGAÇÃO · INIT
+   ============================================================ */
+const LS = { get: (k, d) => { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { } } };
+
+function setTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  LS.set("dash.theme", t);
+  $("#theme").innerHTML = t === "dark" ? "☀ Claro" : "☾ Escuro";
+}
+function setSidebar(open) {
+  $("#sidebar").classList.toggle("open", open);
+  LS.set("dash.sidebar", open ? "1" : "0");
+}
+
+function refresh() {
+  applyFilters();
+  syncFilterBtns();
+  renderKPIs();
+  renderInsights();
+  renderCharts();
+  renderRecs();
+  renderTable();
+}
+
+function init() {
+  setTheme(LS.get("dash.theme", "light"));
+  setSidebar(LS.get("dash.sidebar", "0") === "1");   // recolhida por padrão
+  $("#theme").onclick = () => { setTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"); refresh(); };
+  $("#burger").onclick = () => setSidebar(!$("#sidebar").classList.contains("open"));
+  $("#clr").onclick = () => { FKEYS.forEach(k => S.f[k].clear()); S.q = ""; $("#q").value = ""; S.page = 1; buildFilters(); refresh(); };
+  $("#csv").onclick = exportCSV;
+
+  let t; $("#q").oninput = e => { clearTimeout(t); t = setTimeout(() => { S.q = e.target.value; S.page = 1; refresh(); }, 220); };
+  $("#pf").onclick = () => { S.page = 1; renderTable(); };
+  $("#pp").onclick = () => { S.page--; renderTable(); };
+  $("#pn").onclick = () => { S.page++; renderTable(); };
+  $("#pl").onclick = () => { S.page = Math.ceil(VIEW.length / S.size) || 1; renderTable(); };
+  $("#psize").onchange = e => { S.size = +e.target.value; S.page = 1; renderTable(); };
+
+  // scrollspy
+  const links = $$(".sb-nav a"), secs = links.map(a => $(a.getAttribute("href")));
+  addEventListener("scroll", () => {
+    let cur = 0;
+    secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top < 190) cur = i; });
+    links.forEach((l, i) => l.classList.toggle("active", i === cur));
+  }, { passive: true });
+  links.forEach(l => l.onclick = () => { if (innerWidth < 900) setSidebar(false); });
+
+  addEventListener("resize", () => { clearTimeout(t); t = setTimeout(renderCharts, 250); });
+  loadRemoteWorkbook();
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

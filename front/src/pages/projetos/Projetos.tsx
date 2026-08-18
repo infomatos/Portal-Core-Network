@@ -23,6 +23,17 @@ const cards = [
       </svg>
     ),
   },
+  {
+    to: '/projetos/reuso_hardware',
+    title: 'Reuso Hardware',
+    description: 'Dashboard executivo da base de servidores e oportunidades de reuso para 2026.',
+    badge: 'Dashboard',
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5v9m-18-9v9m9-12v15m-5.25-12h10.5A2.25 2.25 0 0 1 19.5 9.75v4.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 14.25v-4.5A2.25 2.25 0 0 1 6.75 7.5Z" />
+      </svg>
+    ),
+  },
 ];
 
 export default function Projetos() {
@@ -47,7 +58,7 @@ export default function Projetos() {
 
       {/* Cards */}
       <div className="flex-1 bg-slate-50 px-8 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-2xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto w-full">
           {cards.map(card => (
             <Link
               key={card.to}

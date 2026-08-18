@@ -34,7 +34,8 @@ export const navLinks: NavLink[] = [
   { to: '/projetos',    label: 'Projetos',    public: true, mega: true,
     children: [
       { to: '/projetos/visao-geral',     label: 'Visão Geral',     public: true },
-      { to: '/projetos/detalhamento', label: 'Detalhamento', public: true }
+      { to: '/projetos/detalhamento', label: 'Detalhamento', public: true },
+      { to: '/projetos/reuso_hardware', label: 'Reuso Hardware', public: true }
     ],
   },
   { to: '/demandas',    label: 'Demandas',    public: true, mega: true,
