@@ -123,10 +123,10 @@ function YearAccordion({ year, uploads }: { year: number; uploads: Upload[] }) {
         className="w-full flex items-center justify-between px-5 py-3.5 bg-slate-900 text-white hover:bg-slate-800 transition-colors text-left cursor-pointer">
         <div className="flex items-center gap-3">
           <span className="font-bold text-xl">{year}</span>
-          <span className="text-slate-400 text-base font-normal">{uploads.length} arquivo{uploads.length !== 1 ? 's' : ''}</span>
+          <span className="text-slate-400 text-base font-normal">{uploads.length} cenário{uploads.length !== 1 ? 's' : ''}</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-base text-slate-300 font-mono">{brl(total)}</span>
+          {/* <span className="text-base text-slate-300 font-mono">{brl(total)}</span> */}
           <span className="text-slate-400 text-base">{open ? '▲' : '▼'}</span>
         </div>
       </button>
