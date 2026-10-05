@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 
 const API_URL = '/grafana-api';
-const VTOKEN = '9749d6ff559524cb80f8a650228aefb4d4bc3f4d6e4befee7068e60271290516';
+const VTOKEN = '';
 
 type Contract = {
   cw: string;
