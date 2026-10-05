@@ -4,7 +4,7 @@ const REPORTS = [
   {
     id: 'realizacao',
     label: 'Realização Orçamentária',
-    url: 'https://app.powerbi.com/reportEmbed?reportId=e51b576f-5314-4e3e-8dab-d9b8a8257a12&amp;autoAuth=true&amp;ctid=57b8c96e-ac2f-4d78-a149-f1fc6817d3c4',
+    url: '',
     meta: {
       periodo: 'Jan – Abr 2025',
       atualizacao: 'Mensal',
@@ -14,7 +14,7 @@ const REPORTS = [
   {
     id: 'lading',
     label: 'Lading Plan 2025',
-    url: 'https://app.powerbi.com/reportEmbed?reportId=0b858528-e830-434f-9dea-bc1413c194ca&amp;autoAuth=true&amp;ctid=57b8c96e-ac2f-4d78-a149-f1fc6817d3c4',
+    url: '',
     meta: {
       periodo: '2025',
       atualizacao: 'Semanal',
