@@ -11,11 +11,11 @@ export default defineConfig({
       '/api': 'http://localhost:3002',
 
       '/grafana-api': {
-        target: "https://backup-mazzini.internal.timbrasil.com.br",
+        target: "",
         changeOrigin: true,
         secure: false,
         headers: {
-          vtoken: "9749d6ff559524cb80f8a650228aefb4d4bc3f4d6e4befee7068e60271290516",
+          vtoken: "",
         },
         rewrite: (path) => path.replace(/^\/grafana-api/, "/opd/cws_grafana_json/"),
       },
